@@ -19,21 +19,41 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  Data.BAByNF.Grammar, Data.BAByNF.Util.Ascii
+    exposed-modules:
+        Data.BAByNF.Util.Ascii,
+        Data.BAByNF.SimpleTree,
+        Data.BAByNF.Grammar,
+        Data.BAByNF.Grammar.Core,
+        Data.BAByNF.Grammar.ABNF,
+        Data.BAByNF.ParseTree,
+        Data.BAByNF.Parsers
     -- other-modules:
     -- other-extensions:
-    build-depends:    base == 4.18.0.0, bytestring == 0.11.4.0, attoparsec == 0.14.4
+    build-depends:
+        base == 4.18.0.0,
+        bytestring == 0.11.4.0,
+        attoparsec == 0.14.4
     hs-source-dirs:   lib
     default-language: GHC2021
 
 test-suite babynf-test
     import:           warnings
     default-language: GHC2021
-    -- other-modules:
+    other-modules:
+        Data.BAByNF.Test,
+        Data.BAByNF.Util.Ascii.Test,
+        Data.BAByNF.Test.Util,
+        Data.BAByNF.Grammar.Test,
+        Data.BAByNF.Grammar.ABNF.Test,
+        Data.BAByNF.Parsers.Test
     -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
         base ^>=4.18.0.0,
-        babynf
+        bytestring == 0.11.4.0,
+        babynf,
+        tasty == 1.4.3,
+        tasty-hunit == 0.10.0.3,
+        attoparsec == 0.14.4
