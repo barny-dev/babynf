@@ -68,3 +68,5 @@ eqNoCaseBS :: BS.ByteString -> BS.ByteString -> Bool
 eqNoCaseBS a b = (BS.length a) == (BS.length b) && all eq' pairs
     where eq' = uncurry eqNoCase
           pairs = BS.zip a b
+
+fromChar :: Char -> BS.ByteString

@@ -1,4 +1,4 @@
-module Data.BAByNF.Grammar.Test (tests) where
+module Data.BAByNF.ABNF.Grammar.Test (tests) where
 
 import qualified Test.Tasty as T
 import qualified Test.Tasty.HUnit as TH

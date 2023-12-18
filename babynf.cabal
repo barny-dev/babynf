@@ -21,18 +21,21 @@ library
     import:           warnings
     exposed-modules:
         Data.BAByNF.Util.Ascii,
-        Data.BAByNF.SimpleTree,
-        Data.BAByNF.Grammar,
-        Data.BAByNF.Grammar.Core,
-        Data.BAByNF.Grammar.ABNF,
-        Data.BAByNF.ParseTree,
-        Data.BAByNF.Parsers
+        Data.BAByNF.Util.Stream,
+        Data.BAByNF.ABNF.Grammar,
+        Data.BAByNF.ABNF.Core,
+        Data.BAByNF.ABNF.Rules,
+        Data.BAByNF.Core.Repeat,
+        Data.BAByNF.Core.Parseable,
+        Data.BAByNF.Core.Tree,
+        Data.BAByNF.Core.Ref,
+        Data.BAByNF.Core.RefDict
     -- other-modules:
     -- other-extensions:
     build-depends:
-        base == 4.18.0.0,
-        bytestring == 0.11.4.0,
-        attoparsec == 0.14.4
+        base >= 4.9 && < 5,
+        bytestring ^>= 0.11.4.0,
+        attoparsec ^>= 0.14.4
     hs-source-dirs:   lib
     default-language: GHC2021
 
@@ -43,9 +46,9 @@ test-suite babynf-test
         Data.BAByNF.Test,
         Data.BAByNF.Util.Ascii.Test,
         Data.BAByNF.Test.Util,
-        Data.BAByNF.Grammar.Test,
-        Data.BAByNF.Grammar.ABNF.Test,
-        Data.BAByNF.Parsers.Test
+        Data.BAByNF.ABNF.Grammar.Test,
+        Data.BAByNF.ABNF.Rules.Test,
+        Data.BAByNF.Parseable.Test
     -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
