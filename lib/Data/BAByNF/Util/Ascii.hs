@@ -1,11 +1,21 @@
 module Data.BAByNF.Util.Ascii where
 
+import Data.Functor ((<&>))
+import Data.Char qualified as Char
+import Data.Maybe qualified as Maybe
 import Data.Word (Word8)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as B8 ()
+
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as ByteString
+import Data.ByteString.Char8 qualified as ByteString.Char8
+import ASCII qualified as ASCII
+
+import Data.BAByNF.Util.Binary qualified as Binary
+import Data.BAByNF.Util.Decimal qualified as Decimal
+import Data.BAByNF.Util.Hex qualified as Hex
 
 lowerAlphaFirst :: Word8
-lowerAlphaFirst = 97 
+lowerAlphaFirst = 97
 
 lowerAlphaLast :: Word8
 lowerAlphaLast = 122
@@ -18,12 +28,10 @@ upperAlphaLast = 90
 
 
 rangedCompare :: Ord a =>  a -> a -> a -> Ordering
-rangedCompare lo hi x =
-    if x < lo
-        then LT
-        else if x > hi
-            then GT
-            else EQ 
+rangedCompare lo hi x
+  | x < lo = LT
+  | x > hi = GT
+  | otherwise = EQ
 
 data AlphaClass = UpperAlpha | LowerAlpha deriving (Eq, Show)
 
@@ -64,9 +72,70 @@ eqNoCaseSeq _ [] = False
 eqNoCaseSeq [] _ = False
 eqNoCaseSeq (x:xs) (y:ys) = eqNoCase x y && eqNoCaseSeq xs ys
 
-eqNoCaseBS :: BS.ByteString -> BS.ByteString -> Bool
-eqNoCaseBS a b = (BS.length a) == (BS.length b) && all eq' pairs
+eqNoCaseBS :: ByteString -> ByteString -> Bool
+eqNoCaseBS a b = ByteString.length a == ByteString.length b && all eq' pairs
     where eq' = uncurry eqNoCase
-          pairs = BS.zip a b
+          pairs = ByteString.zip a b
 
-fromChar :: Char -> BS.ByteString
+fromChar :: Char -> Maybe Word8
+fromChar ch =
+    if Char.isAscii ch
+        then Just (fromIntegral (Char.ord ch))
+        else Nothing
+
+fromCharOrNull :: Char -> Word8
+fromCharOrNull ch = Maybe.fromMaybe 0 (fromChar ch)
+
+bs :: Char -> ByteString
+bs ch = ByteString.singleton (fromCharOrNull ch)
+
+parseHex :: (Integral a) => ByteString -> Maybe a
+parseHex s = fmap (Hex.toNum . Hex.Seq) (mapM toHexDigit (ByteString.unpack s))
+
+toHexDigit :: Word8 -> Maybe Hex.Digit
+toHexDigit w
+    | w >= 48 && w <= 57 = Hex.fromVal (w - 48)
+    | w >= 97 && w <= 102 = Hex.fromVal (w - 97 + 10)
+    |  w >= 65 && w <= 70 = Hex.fromVal (w - 65 + 10)
+    | otherwise = Nothing
+
+bsToHexDigit :: ByteString -> Maybe Hex.Digit
+bsToHexDigit b =
+    case ByteString.uncons b of
+        Just (w, t) | ByteString.null t -> toHexDigit w
+                    | otherwise -> Nothing
+        _ -> Nothing
+toHexSeq :: ByteString -> Maybe Hex.Seq
+toHexSeq b = toHexDigs b <&> Hex.Seq
+    where toHexDigs x = ByteString.uncons x >>=
+            \(h, rest) ->  toHexDigit h >>=
+            \hexdig -> if ByteString.null rest 
+                then Just [hexdig]
+                else toHexDigs rest >>= \hexdigs -> Just (hexdig:hexdigs)
+
+toDecimalDigit :: Word8 -> Maybe Decimal.Digit
+toDecimalDigit w
+    | w >= 48 && w <= 57 = Decimal.fromVal (w - 48)
+    | otherwise = Nothing
+
+bsToDecimalDigit :: ByteString -> Maybe Decimal.Digit
+bsToDecimalDigit b =
+    case ByteString.uncons b of
+        Just (w, t) | ByteString.null t -> toDecimalDigit w
+                    | otherwise -> Nothing
+        _ -> Nothing
+
+toBinaryDigit :: Word8 -> Maybe Binary.Digit
+toBinaryDigit w
+    | w `elem` [48, 49] = Binary.fromVal(w - 48)
+    | otherwise = Nothing
+
+bsToBinaryDigit :: ByteString -> Maybe Binary.Digit
+bsToBinaryDigit b =
+    case ByteString.uncons b of
+        Just (w, t) | ByteString.null t -> toBinaryDigit w
+                    | otherwise -> Nothing
+        _ -> Nothing
+
+stringAsBytesUnsafe :: String -> ByteString
+stringAsBytesUnsafe = Maybe.fromJust . ASCII.unicodeStringToByteStringMaybe  

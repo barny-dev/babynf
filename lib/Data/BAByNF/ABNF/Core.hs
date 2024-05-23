@@ -1,8 +1,15 @@
 module Data.BAByNF.ABNF.Core where
 
+import Data.List qualified as List
+
+import Data.BAByNF.Util.Ascii qualified as Ascii
+import Data.BAByNF.Util.Hex qualified as Hex
+
+import Data.BAByNF.ABNF qualified as ABNF
+
 import qualified Data.BAByNF.ABNF.Grammar as Grammar
 
-rules :: [Grammar.RuleDecl]
+rules :: [ABNF.Rule]
 rules =
     [ alphaRule
     , bitRule
@@ -22,102 +29,327 @@ rules =
     , wspRule
     ]
 
-ruleRefs :: [Grammar.RuleRef]
-ruleRefs = map (\(Grammar.RuleDecl r _) -> r) rules
+ruleRefs :: [ABNF.Rulename]
+ruleRefs = map (\(ABNF.Rule r _ _) -> r) rules
 
-alphaRef :: Grammar.RuleRef
-alphaRef = Grammar.ref "ALPHA"
+alphaRef :: ABNF.Rulename
+alphaRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "ALPHA")
 
-alphaRule :: Grammar.RuleDecl
-alphaRule = Grammar.RuleDecl alphaRef (Grammar.RuleDef $ (Grammar.rng 65 90) Grammar.<||> (Grammar.rng 97 122))
+alphaRule :: ABNF.Rule
+alphaRule = ABNF.Rule alphaRef ABNF.BasicDefinition .
+    ABNF.Elements . ABNF.Alternation $ 
+        [ ABNF.Concatenation 
+            . List.singleton 
+            . ABNF.Repetition ABNF.NoRepeat
+            . ABNF.NumValElement 
+            . ABNF.HexNumVal 
+            $ ABNF.RangeHexVal (Hex.Seq [Hex.X4, Hex.X1]) (Hex.Seq [Hex.X5, Hex.XA])
+        , ABNF.Concatenation 
+            . List.singleton 
+            . ABNF.Repetition ABNF.NoRepeat
+            . ABNF.NumValElement 
+            . ABNF.HexNumVal 
+            $ ABNF.RangeHexVal (Hex.Seq [Hex.X6, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XA])
+        ]
 
-bitRef :: Grammar.RuleRef
-bitRef = Grammar.ref "BIT"
+bitRef :: ABNF.Rulename
+bitRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "BIT")
 
-bitRule :: Grammar.RuleDecl
-bitRule = Grammar.RuleDecl bitRef (Grammar.RuleDef $ (Grammar.str "0") Grammar.<||> (Grammar.str "1"))
+bitRule :: ABNF.Rule
+bitRule = ABNF.Rule bitRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    $ ABNF.Alternation
+        [ ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs '0'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs '1'
+        ]
 
-charRef :: Grammar.RuleRef
-charRef = Grammar.ref "CHAR"
+charRef :: ABNF.Rulename
+charRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CHAR")
 
-charRule :: Grammar.RuleDecl
-charRule = Grammar.RuleDecl charRef (Grammar.RuleDef $ Grammar.rng 1 127)
+charRule :: ABNF.Rule
+charRule = ABNF.Rule charRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XF])
 
-crRef :: Grammar.RuleRef
-crRef = Grammar.ref "CR"
+crRef :: ABNF.Rulename
+crRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CR")
 
-crRule :: Grammar.RuleDecl
-crRule = Grammar.RuleDecl crRef (Grammar.RuleDef $ Grammar.byte 13)
+crRule :: ABNF.Rule
+crRule = ABNF.Rule crRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.XD]]
 
-crlfRef :: Grammar.RuleRef
-crlfRef = Grammar.ref "CRLF"
+crlfRef :: ABNF.Rulename
+crlfRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CRLF")
 
-crlfRule :: Grammar.RuleDecl
-crlfRule = Grammar.RuleDecl crlfRef (Grammar.RuleDef $ Grammar.asAlt $ crRef Grammar.<..> lfRef)
+crlfRule :: ABNF.Rule
+crlfRule = ABNF.Rule crlfRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    $ ABNF.Concatenation 
+        [ ABNF.Repetition ABNF.NoRepeat
+            $ ABNF.RulenameElement crRef
+        , ABNF.Repetition ABNF.NoRepeat
+            $ ABNF.RulenameElement lfRef
+        ]
 
-ctlRef :: Grammar.RuleRef
-ctlRef = Grammar.ref "CTL"
+ctlRef :: ABNF.Rulename
+ctlRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CTL")
 
-ctlRule :: Grammar.RuleDecl
-ctlRule = Grammar.RuleDecl ctlRef (Grammar.RuleDef $ (Grammar.rng 0 31) Grammar.<||> (Grammar.byte 127))
+ctlRule :: ABNF.Rule
+ctlRule = ABNF.Rule ctlRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    $ ABNF.Alternation
+        [ ABNF.Concatenation 
+            . List.singleton
+            . ABNF.Repetition ABNF.NoRepeat
+            . ABNF.NumValElement
+            . ABNF.HexNumVal
+            $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.X1, Hex.XF])
+        , ABNF.Concatenation 
+            . List.singleton
+            . ABNF.Repetition ABNF.NoRepeat
+            . ABNF.NumValElement
+            . ABNF.HexNumVal
+            $ ABNF.SeqHexVal [Hex.Seq [Hex.X7, Hex.XF]]
+        ]
 
-digitRef :: Grammar.RuleRef
-digitRef = Grammar.ref "DIGIT"
+digitRef :: ABNF.Rulename
+digitRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "DIGIT")
 
-digitRule :: Grammar.RuleDecl
-digitRule = Grammar.RuleDecl digitRef (Grammar.RuleDef $ Grammar.rng 48 57)
+digitRule :: ABNF.Rule
+digitRule = ABNF.Rule digitRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.RangeHexVal (Hex.Seq [Hex.X3, Hex.X0]) (Hex.Seq [Hex.X3, Hex.X9])
 
-dquoteRef :: Grammar.RuleRef
-dquoteRef = Grammar.ref "DQUOTE"
+dquoteRef :: ABNF.Rulename
+dquoteRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "DQUOTE")
 
-dquoteRule :: Grammar.RuleDecl
-dquoteRule = Grammar.RuleDecl dquoteRef (Grammar.RuleDef $ Grammar.byte 34)
+dquoteRule :: ABNF.Rule
+dquoteRule = ABNF.Rule dquoteRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.SeqHexVal [Hex.Seq [Hex.X2, Hex.X2]]
 
-hexdigRef :: Grammar.RuleRef
-hexdigRef = Grammar.ref "HEXDIG"
+hexdigRef :: ABNF.Rulename
+hexdigRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "HEXDIG")
 
-hexdigRule :: Grammar.RuleDecl
-hexdigRule = Grammar.RuleDecl hexdigRef (Grammar.RuleDef $ Grammar.asAlt digitRef Grammar.<||> Grammar.str "A" Grammar.<||> Grammar.str "B" Grammar.<||> Grammar.str "C" Grammar.<||> Grammar.str "D" Grammar.<||> Grammar.str "E" Grammar.<||> Grammar.str "F")
+hexdigRule :: ABNF.Rule
+hexdigRule = ABNF.Rule hexdigRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    $ ABNF.Alternation
+        [ ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement digitRef
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'A'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'B'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'C'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'D'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'E'
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                . ABNF.CharValElement
+                . ABNF.CaseInsensitiveCharVal
+                . ABNF.CaseInsensitiveString
+                . ABNF.QuotedString
+                $ Ascii.bs 'F'
+        ]
 
-htabRef :: Grammar.RuleRef
-htabRef = Grammar.ref "HTAB"
+htabRef :: ABNF.Rulename
+htabRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "HTAB")
 
-htabRule :: Grammar.RuleDecl
-htabRule = Grammar.RuleDecl htabRef (Grammar.RuleDef $ Grammar.byte 9)
+htabRule :: ABNF.Rule
+htabRule = ABNF.Rule htabRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.X9]]
 
-lfRef :: Grammar.RuleRef
-lfRef = Grammar.ref "LF"
+lfRef :: ABNF.Rulename
+lfRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "LF")
 
-lfRule :: Grammar.RuleDecl
-lfRule = Grammar.RuleDecl lfRef (Grammar.RuleDef $ Grammar.byte 10)
+lfRule :: ABNF.Rule
+lfRule = ABNF.Rule lfRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.XA]]
 
-lwspRef :: Grammar.RuleRef
-lwspRef = Grammar.ref "LWSP"
+lwspRef :: ABNF.Rulename
+lwspRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "LWSP")
 
-lwspRule :: Grammar.RuleDecl
-lwspRule = Grammar.RuleDecl lwspRef (Grammar.RuleDef . Grammar.zeroOrMore . Grammar.group $ wspRef Grammar.<|||> (crlfRef Grammar.<..> wspRef))
+lwspRule :: ABNF.Rule
+lwspRule = ABNF.Rule lwspRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound)
+    . ABNF.GroupElement
+    . ABNF.Group
+    $ ABNF.Alternation
+        [ ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement wspRef
+        , ABNF.Concatenation
+            [ ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement crlfRef
+            , ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement wspRef
+            ]
+        ]
+    
 
-octetRef :: Grammar.RuleRef
-octetRef = Grammar.ref "OCTET"
+octetRef :: ABNF.Rulename
+octetRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "OCTET")
 
-octetRule :: Grammar.RuleDecl
-octetRule = Grammar.RuleDecl octetRef (Grammar.RuleDef $ Grammar.rng 0 255)
+octetRule :: ABNF.Rule
+octetRule = ABNF.Rule octetRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.XF, Hex.XF])
 
-spRef :: Grammar.RuleRef
-spRef = Grammar.ref "SP"
+spRef :: ABNF.Rulename
+spRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "SP")
 
-spRule :: Grammar.RuleDecl
-spRule = Grammar.RuleDecl spRef (Grammar.RuleDef $ Grammar.byte 32)
+spRule :: ABNF.Rule
+spRule = ABNF.Rule spRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.SeqHexVal [Hex.Seq [Hex.X2, Hex.X0]]
 
-vcharRef :: Grammar.RuleRef
-vcharRef = Grammar.ref "VCHAR"
+vcharRef :: ABNF.Rulename
+vcharRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "VCHAR")
 
-vcharRule :: Grammar.RuleDecl
-vcharRule = Grammar.RuleDecl vcharRef (Grammar.RuleDef $ Grammar.rng 33 126)
+vcharRule :: ABNF.Rule
+vcharRule = ABNF.Rule vcharRef ABNF.BasicDefinition
+    $ ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    . List.singleton
+    . ABNF.Repetition ABNF.NoRepeat
+    . ABNF.NumValElement
+    . ABNF.HexNumVal
+    $ ABNF.RangeHexVal (Hex.Seq [Hex.X2, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XE])
 
 
-wspRef :: Grammar.RuleRef
-wspRef = Grammar.ref "WSP"
+wspRef :: ABNF.Rulename
+wspRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "WSP")
 
-wspRule :: Grammar.RuleDecl
-wspRule = Grammar.RuleDecl wspRef (Grammar.RuleDef $ spRef Grammar.<|||> htabRef)
+wspRule :: ABNF.Rule
+wspRule = ABNF.Rule wspRef ABNF.BasicDefinition
+        $ ABNF.Elements
+    $ ABNF.Alternation
+        [ ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement spRef
+        , ABNF.Concatenation 
+                . List.singleton 
+                . ABNF.Repetition ABNF.NoRepeat
+                $ ABNF.RulenameElement htabRef
+        ]

@@ -17,7 +17,7 @@ import Data.BAByNF.Util.Ascii qualified as Ascii
 
 import Data.BAByNF.Core.Parseable (Parseable)
 import Data.BAByNF.Core.Parseable qualified as Parseable
-import Data.BAByNF.Core.Ref (Ref, CaseInsensitiveAsciiRef)
+import Data.BAByNF.Core.Ref (Ref)
 import Data.BAByNF.Core.Ref qualified as Ref
 import Data.BAByNF.Core.RefDict (RefDict (..))
 import Data.BAByNF.Core.RefDict qualified as RefDict
@@ -26,9 +26,10 @@ import Data.BAByNF.Core.Repeat qualified as Repeat
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 
+import Data.BAByNF.ABNF qualified as ABNF
 
 
-type ABNFRef = CaseInsensitiveAsciiRef
+type ABNFRef = ABNF.Rulename
 type ABNFParseable = Parseable ABNFRef
 type ABNFDict = RefDict ABNFRef ABNFParseable
 data Grammar = Grammar [RuleDecl] deriving (Eq, Show)
@@ -40,7 +41,7 @@ toDict (Grammar declarations) =
     where toEntry (RuleDecl ruleRef (RuleDef alt)) = (toRef ruleRef, altParser alt) 
 
 toRef :: RuleRef -> ABNFRef
-toRef (RuleRef bs) = Ref.caseInsensitiveAscii bs
+toRef (RuleRef bs) = ABNF.Rulename bs
 
 toParser :: Grammar -> RuleRef -> Parseable.TreeParser ABNFRef
 toParser grammar ruleRef = Parseable.toParser (toDict grammar) (Parseable.Rule (toRef ruleRef))
@@ -336,7 +337,7 @@ repParser (Rep maybeRepDef e) = case maybeRepDef of
 elemParser :: Elem -> ABNFParseable
 elemParser def =
     case def of
-        RuleRefE ref -> ruleParser ref
+        RuleRefE ref -> ruleParser (toRef ref)
         GroupE group -> groupParser group
         OptE opt -> optParser opt
         TermE term -> termParser term
@@ -363,5 +364,5 @@ termParser def = Parseable.Unit (friendlyShow def) (parser def <&> toTree)
 friendlyShow :: Term -> String
 friendlyShow = show
 
-ruleParser :: RuleRef -> ABNFParseable
-ruleParser (RuleRef bs) = Parseable.Rule $ Ref.caseInsensitiveAscii bs
+ruleParser :: ABNF.Rulename -> ABNFParseable
+ruleParser rulename = Parseable.Rule rulename

@@ -21,19 +21,48 @@ library
     import:           warnings
     exposed-modules:
         Data.BAByNF.Util.Ascii,
+        Data.BAByNF.Util.List,
+        Data.BAByNF.Util.AsList,
         Data.BAByNF.Util.Stream,
-        Data.BAByNF.ABNF.Grammar,
-        Data.BAByNF.ABNF.Core,
-        Data.BAByNF.ABNF.Rules,
+        Data.BAByNF.Util.Hex,
+        Data.BAByNF.Util.Binary,
+        Data.BAByNF.Util.Decimal,
         Data.BAByNF.Core.Repeat,
         Data.BAByNF.Core.Parseable,
         Data.BAByNF.Core.Tree,
         Data.BAByNF.Core.Ref,
-        Data.BAByNF.Core.RefDict
-    -- other-modules:
+        Data.BAByNF.Core.RefDict,
+        Data.BAByNF.ABNF,
+        Data.BAByNF.ABNF.Grammar,
+        Data.BAByNF.ABNF.Core,
+        Data.BAByNF.ABNF.Rules,
+        Data.BAByNF.ABNF.Rules.Rulename,
+        Data.BAByNF.ABNF.Rules.Rulelist,
+        Data.BAByNF.ABNF.Rules.Alternation,
+        Data.BAByNF.ABNF.Rules.Concatenation,
+        Data.BAByNF.ABNF.Rules.Repetition,
+        Data.BAByNF.ABNF.Rules.Repeat,
+        Data.BAByNF.ABNF.Rules.Element,
+        Data.BAByNF.ABNF.Rules.Elements,
+        Data.BAByNF.ABNF.Rules.Group,
+        Data.BAByNF.ABNF.Rules.Option,
+        Data.BAByNF.ABNF.Rules.CharVal,
+        Data.BAByNF.ABNF.Rules.CaseInsensitiveString,
+        Data.BAByNF.ABNF.Rules.CaseSensitiveString,
+        Data.BAByNF.ABNF.Rules.QuotedString,
+        Data.BAByNF.ABNF.Rules.NumVal,
+        Data.BAByNF.ABNF.Rules.BinVal,
+        Data.BAByNF.ABNF.Rules.DecVal,
+        Data.BAByNF.ABNF.Rules.HexVal,
+        Data.BAByNF.ABNF.Rules.ProseVal,
+        Data.BAByNF.ABNF.Rules.Comment,
+        Data.BAByNF.ABNF.Rules.CWsp,
+        Data.BAByNF.ABNF.Rules.CNl
+    other-modules:
     -- other-extensions:
     build-depends:
         base >= 4.9 && < 5,
+        ascii ^>= 1.7.0.1,
         bytestring ^>= 0.11.4.0,
         attoparsec ^>= 0.14.4
     hs-source-dirs:   lib
@@ -54,9 +83,9 @@ test-suite babynf-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base ^>=4.18.0.0,
+        base >= 4.9 && < 5,
         bytestring == 0.11.4.0,
-        babynf,
+        babynf == 0.1.0.0,
         tasty == 1.4.3,
         tasty-hunit == 0.10.0.3,
         attoparsec == 0.14.4

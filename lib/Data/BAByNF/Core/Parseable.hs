@@ -14,6 +14,7 @@ import Data.Attoparsec.ByteString qualified as Attoparsec
 import Data.BAByNF.Core.Tree (Tree, Node (..))
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.Core.Ref (Ref)
+import Data.BAByNF.Core.Ref qualified as Ref
 import Data.BAByNF.Core.RefDict (RefDict)
 import Data.BAByNF.Core.RefDict qualified as RefDict
 import Data.BAByNF.Core.Repeat (Repeat, RepeatCount)
@@ -24,18 +25,18 @@ type TreeParser a = Attoparsec.Parser (Tree a)
 
 data ParserEnvironment a where
     ParserEnvironment :: (Ref a) =>  { parserGrammar :: Dict a, parserContextStack :: [ParserContext a] } -> ParserEnvironment a
-deriving instance Show (ParserEnvironment a)
+deriving instance (Show a) => Show (ParserEnvironment a)
 
 data ParserState a where
     ParserState :: (Ref a) => { parserEnvironment ::  ParserEnvironment a , parserFocus :: ParserFocus a } -> ParserState a
-deriving instance Show (ParserState a)
+deriving instance (Show a) => Show (ParserState a)
 
 data ParserContext a where
     SeqContext :: (Ref a) => { seqPrev :: Tree a, seqNext :: [Parseable a]} -> ParserContext a
     RepContext :: (Ref a) => { repPrev :: Tree a, repParse :: Parseable a, repCount :: RepeatCount} -> ParserContext a
     AltContext :: (Ref a) => { altNext ::  [Parseable a]} -> ParserContext a
     RuleContext :: (Ref a) => { ruleRef :: a } -> ParserContext a
-deriving instance Show (ParserContext a)
+deriving instance (Show a) => Show (ParserContext a)
 
 data Parseable a where
     Seq :: (Ref a) => NonEmpty (Parseable a) -> Parseable a
@@ -44,7 +45,7 @@ data Parseable a where
     Rule :: (Ref a) => a -> Parseable a
     Unit :: String -> (TreeParser a) -> Parseable a
 
-instance Show (Parseable a) where
+instance (Show a) => Show (Parseable a) where
     show :: Parseable a -> String
     show x = case x of
         Seq y -> "Seq " ++ show y
@@ -58,7 +59,7 @@ data ParserFocus a where
     OnReturn :: Ref a => ParserContext a -> Tree a -> ParserFocus a
     OnFailure :: Ref a => ParserContext a -> ParserFocus a
     After :: Ref a => Tree a -> ParserFocus a
-deriving instance Show (ParserFocus a)
+deriving instance (Show a) => Show (ParserFocus a)
 
 toParser :: (Ref a) => Dict a -> Parseable a -> TreeParser a
 toParser grammar parseable = toParser' $ ParserState { parserEnvironment = ParserEnvironment { parserGrammar = grammar, parserContextStack = []}, parserFocus = Before parseable }
@@ -100,7 +101,7 @@ toParser' state =
             Before (Unit _ p) -> Parse p
             Before (Rule ref) ->
                 let maybeP = lookupDef ref (parserEnvironment state)
-                 in maybe (Panic $ "undefined " ++ show ref) (Split RuleContext { ruleRef = ref }) maybeP
+                 in maybe (Panic $ "undefined " ++ Ref.display ref) (Split RuleContext { ruleRef = ref }) maybeP
             Before (Seq (p :| ps)) -> Split SeqContext { seqPrev = Tree.empty, seqNext = ps } p
             Before (Alt (p :| ps)) -> Branch AltContext { altNext = ps} p
             Before (Rep p rep) ->

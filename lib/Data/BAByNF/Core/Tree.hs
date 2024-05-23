@@ -5,18 +5,19 @@ import Data.ByteString qualified as ByteString
 
 import Data.BAByNF.Core.Ref (Ref)
 import Data.List.NonEmpty (NonEmpty ((:|)))
+import qualified Data.BAByNF.Core.Ref as Ref
 
 data Tree a where Tree :: Ref a => [Node a] -> Tree a
 
-deriving instance Eq (Tree a)
-deriving instance Show (Tree a)
+deriving instance (Eq a) => Eq (Tree a)
+deriving instance (Show a) => Show (Tree a)
 
 data Node a where
     StringNode :: ByteString -> Node a
     RefNode :: (Ref a) => a -> Tree a -> Node a
 
-deriving instance Eq (Node a)
-deriving instance Show (Node a)
+deriving instance (Eq a) => Eq (Node a)
+deriving instance (Show a) => Show (Node a)
 
 instance Semigroup (Tree a) where
     (<>) :: Tree a -> Tree a -> Tree a
@@ -54,13 +55,13 @@ dropRefs refs (Tree ns) = Tree $ ns >>= applyDrop
     where applyDrop node@(StringNode _) = [node]
           applyDrop (RefNode ref tree) =
             let tree'@(Tree ns') = dropRefs refs tree
-             in if ref `elem` refs
+             in if any (Ref.eq ref) refs
                 then ns'
                 else [RefNode ref tree']
 
 getChildrenWithRef :: a -> Tree a -> [Tree a]
 getChildrenWithRef ref (Tree ns) = ns >>= filterOnRef
-    where filterOnRef (RefNode ref' subtree) = [subtree | ref == ref']
+    where filterOnRef (RefNode ref' subtree) = [subtree | Ref.eq ref ref']
           filterOnRef _ = []
 
 getChildWithRef :: a -> Tree a -> Maybe (Tree a)
@@ -72,7 +73,7 @@ getChildWithRef ref tree =
 tryGetChildWithRef :: (Ref a) => a -> Tree a -> Either String (Tree a)
 tryGetChildWithRef ref tree = 
     case getChildWithRef ref tree of
-        Nothing -> Left $ "no subtree with ref <" ++ show ref ++ "> defined"
+        Nothing -> Left $ "no subtree with ref <" ++ Ref.display ref ++ "> defined"
         Just subtree -> Right subtree
 
 getDescendantsWithPath :: (Ref a) => NonEmpty a -> Tree a -> [Tree a]
@@ -94,7 +95,7 @@ tryGetFirstPath (r :| rs) tree =
         (r':rs') -> e >>= tryGetFirstPath (r' :| rs')   
 
 getSubtreeIfRef :: (Ref a) => a -> Node a -> Maybe (Tree a)
-getSubtreeIfRef ref (RefNode ref' subtree) = if ref == ref' then Just subtree else Nothing
+getSubtreeIfRef ref (RefNode ref' subtree) = if Ref.eq ref ref' then Just subtree else Nothing
 getSubtreeIfRef _ _ = Nothing
 
 isStringEq :: (Ref a) => Node a -> ByteString -> Bool
@@ -102,5 +103,5 @@ isStringEq (StringNode bs) bs' = bs == bs'
 isStringEq _ _ = False
 
 isRefOf :: (Ref a) => Node a -> a -> Bool 
-isRefOf (RefNode ref _) ref' = ref == ref'
+isRefOf (RefNode ref _) ref' = Ref.eq ref ref'
 isRefOf _ _ = False

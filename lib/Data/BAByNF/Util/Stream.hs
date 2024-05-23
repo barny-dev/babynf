@@ -1,9 +1,11 @@
+{-# LANGUAGE LambdaCase #-}
 module Data.BAByNF.Util.Stream where
 import Data.Bifunctor qualified as Bifunctor
 import Data.Maybe (isJust, isNothing)
 import Control.Applicative (liftA2)
 import Control.Monad (when)
 import Prelude hiding (take, drop, takeWhile, dropWhile)
+import Data.Kind (Type)
 
 
 
@@ -87,3 +89,16 @@ either stream action = stream >>= \e -> case e of Left l -> return (Left l); Rig
 
 either' :: Stream e (Either l a) -> (a -> Stream e (Either l b)) -> Stream e (Either l b)
 either' stream action = stream >>= \e -> case e of Left l -> return (Left l); Right a -> action a
+
+
+class Propagate (p :: Type -> Type)  where
+    propagate :: (Monad m) => m (p a) -> (a -> m (p b)) -> m (p b)
+
+instance Propagate Maybe where
+    propagate m1 m2 = m1 >>= \case Nothing -> return Nothing; Just a -> m2 a
+
+instance Propagate (Either a) where
+    propagate m1 m2 = m1 >>= \case Left e -> return (Left e); Right a -> m2 a
+
+propagate' :: (Propagate p, Monad m) => m (p a) -> m (p b) -> m (p b)
+propagate' m1 m2 = propagate m1 (const m2)

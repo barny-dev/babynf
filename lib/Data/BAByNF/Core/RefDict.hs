@@ -1,9 +1,10 @@
 module Data.BAByNF.Core.RefDict where
 
 import Data.BAByNF.Core.Ref (Ref)
+import Data.BAByNF.Core.Ref qualified as Ref
 
 data RefDict a b where RefDict :: (Ref a) => [(a, b)] -> RefDict a b
-deriving instance (Show b) => Show (RefDict a b)
+deriving instance (Show a, Show b) => Show (RefDict a b)
 
 lookup :: a -> RefDict a b -> [b]
 lookup ref (RefDict list) = lookup' ref list
@@ -11,7 +12,7 @@ lookup ref (RefDict list) = lookup' ref list
             [] -> []
             (r', e) : rest ->
                 let cont = lookup' r rest
-                    in if r == r' 
+                    in if Ref.eq r r' 
                     then e : cont
                     else cont
 
@@ -20,7 +21,7 @@ lookup1 ref (RefDict list) = lookup1' ref list
     where lookup1' r l = case l of
             [] -> Nothing
             (r', e) : rest ->
-                if r == r'
+                if Ref.eq r r'
                     then Just e
                     else lookup1' ref rest
                 

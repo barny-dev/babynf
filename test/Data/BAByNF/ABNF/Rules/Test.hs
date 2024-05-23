@@ -5,31 +5,34 @@ import qualified Test.Tasty.HUnit as TH
 import qualified Data.BAByNF.Util.Ascii as Ascii
 import qualified Data.Attoparsec.ByteString as Attoparsec
 import qualified Data.ByteString.Char8 as B8
+import Data.ByteString qualified as ByteString
 import Data.Either (isRight)
 import Data.Functor ((<&>))
 import qualified Data.BAByNF.ABNF.Grammar as ABNFGrammar
 import Data.List.NonEmpty (NonEmpty ((:|)))
 -- import qualified Data.BAByNF.Parsers as Parsers
 import qualified Data.BAByNF.ABNF.Rules as ABNFRules
-import Data.BAByNF.Tree (Tree (..))
-import Data.BAByNF.Tree qualified as Tree
-import Data.BAByNF.Ref qualified as Ref
-import Data.BAByNF.RefDict (RefDict (..))
-import Data.BAByNF.Repeat qualified as Repeat
-import Data.BAByNF.Parseable
-import Data.BAByNF.Parseable qualified as Parseable
+import Data.BAByNF.ABNF.Core as ABNFCore
+import Data.BAByNF.Core.Tree (Tree (..))
+import Data.BAByNF.Core.Tree qualified as Tree
+import Data.BAByNF.Core.Ref qualified as Ref
+import Data.BAByNF.Core.RefDict (RefDict (..))
+import Data.BAByNF.Core.Repeat qualified as Repeat
+import Data.BAByNF.Core.Parseable
+import Data.BAByNF.Core.Parseable qualified as Parseable
 import Debug.Trace (trace)
-import qualified Data.ByteString.Builder as Attoparsec
 
 
 putTrace v = trace (show v) v 
 
 tests :: T.TestTree
-tests = "ABNF Grammar Tests" `T.testGroup` [
-    parseableTests
-      ,proseValRuleTests
-      ,hexValRuleTests
-      ,ruleRuleTests
+tests = "ABNF Grammar Tests" `T.testGroup` 
+    [ parseableTests
+    , proseValRuleTests
+    , hexValRuleTests
+    , ruleRuleTests
+    , binNumTermFromTreeTest
+    , decNumTermFromTreeTest
     ]
 
 parseableTests :: T.TestTree
@@ -160,4 +163,74 @@ ruleRuleTests = "rule tests" `T.testGroup`
         TH.assertBool "Should parse text" (isRight result)
     ]
     where parse = Attoparsec.parseOnly $ (ABNFGrammar.toParser ABNFRules.abnfGrammar ABNFRules.ruleRef)
+
+binNumTermFromTreeTest :: T.TestTree
+binNumTermFromTreeTest = "test for bin-num from tree test" `T.testGroup`
+    [ "singleton: 240" `TH.testCase` do
+        let tree = Tree [char 'b', bit '1', bit '1', bit '1', bit '1', bit '0', bit '0', bit '0', bit '0']
+         in TH.assertEqual "must parse single byte value"
+                (ABNFRules.binNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.singleton 240)))
+    , "singleton: 1" `TH.testCase` do
+        let tree = Tree [char 'b', bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '1']
+         in TH.assertEqual "must parse single byte value"
+                (ABNFRules.binNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.singleton 1)))
+    , "sequence 1 2 3" `TH.testCase` do
+        let tree = Tree [ char 'b'
+                        , bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '1'
+                        , char '.'
+                        , bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '1', bit '0'
+                        , char '.'
+                        , bit '0', bit '0', bit '0', bit '0', bit '0', bit '0', bit '1', bit '1'
+                        ]
+         in TH.assertEqual "must parse byte sequence"
+                (ABNFRules.binNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.pack [1, 2, 3])))
+    , "range 20-40" `TH.testCase` do
+        let tree = Tree [ char 'b'
+                        , bit '0', bit '0', bit '0', bit '1', bit '0', bit '1', bit '0', bit '0'
+                        , char '-'
+                        , bit '0', bit '0', bit '1', bit '0', bit '1', bit '0', bit '0', bit '0'
+                        ]
+         in TH.assertEqual "must parse byte sequence"
+                (ABNFRules.binNumTermFromTree tree)
+                (Right (ABNFGrammar.RangeTerm 20 40)) ]
+    where bit ch =  Tree.RefNode (ABNFGrammar.toRef ABNFCore.bitRef) (Tree [Tree.StringNode (Ascii.bs ch)])
+          char ch = Tree.StringNode (Ascii.bs ch)
+
+decNumTermFromTreeTest :: T.TestTree
+decNumTermFromTreeTest = "test for bin-num from tree test" `T.testGroup`
+    [ "singleton: 240" `TH.testCase` do
+        let tree = Tree [char 'd', digit '2', digit '4', digit '0']
+         in TH.assertEqual "must parse single byte value"
+                (ABNFRules.decNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.singleton 240)))
+    , "singleton: 1" `TH.testCase` do
+        let tree = Tree [char 'd', digit '1']
+         in TH.assertEqual "must parse single byte value"
+                (ABNFRules.decNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.singleton 1)))
+    , "sequence 1 2 3" `TH.testCase` do
+        let tree = Tree [ char 'd'
+                        , digit '1'
+                        , char '.'
+                        , digit '2'
+                        , char '.'
+                        , digit '3'
+                        ]
+         in TH.assertEqual "must parse byte sequence"
+                (ABNFRules.decNumTermFromTree tree)
+                (Right (ABNFGrammar.ArrayTerm ABNFGrammar.CaseSensitive (ByteString.pack [1, 2, 3])))
+    , "range 20-40" `TH.testCase` do
+        let tree = Tree [ char 'd'
+                        , digit '2', digit '0'
+                        , char '-'
+                        , digit '4', digit '0'
+                        ]
+         in TH.assertEqual "must parse byte sequence"
+                (ABNFRules.decNumTermFromTree tree)
+                (Right (ABNFGrammar.RangeTerm 20 40)) ]
+    where digit ch =  Tree.RefNode (ABNFGrammar.toRef ABNFCore.digitRef) (Tree [Tree.StringNode (Ascii.bs ch)])
+          char ch = Tree.StringNode (Ascii.bs ch)
 
