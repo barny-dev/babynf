@@ -38,7 +38,7 @@ fromTree tree =
     name >>= \name' ->
     definedAs >>= \definedAs' ->
     elements >>= \elements' ->
-    return $ ABNF.Rule name' definedAs' ( elements')
+    return $ ABNF.Rule name' definedAs' elements'
     where name = Tree.tryGetChildWithRef Rulename.ref tree <&> Rulename.fromTree
           definedAs = Tree.tryGetChildWithRef DefinedAs.ref tree >>= DefinedAs.fromTree
           elements = Elements.fromTree tree

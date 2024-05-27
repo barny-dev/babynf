@@ -24,6 +24,7 @@ import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF (Element(RulenameElement))
+import Data.BAByNF.Core.Ref qualified as Ref
 
 
 ref :: ABNF.Rulename
@@ -64,11 +65,11 @@ fromTree :: Tree ABNF.Rulename -> Either String ABNF.Element
 fromTree tree = 
     case Tree.nodes tree of
         [Tree.RefNode r subtree] -> 
-            if r == Rulename.ref then Right . ABNF.RulenameElement . Rulename.fromTree $ subtree  
-            else if r == Group.ref then Group.fromTree subtree <&> ABNF.GroupElement
-            else if r == Option.ref then Option.fromTree subtree <&> ABNF.OptionElement
-            else if r == CharVal.ref then CharVal.fromTree subtree <&> ABNF.CharValElement
-            else if r == NumVal.ref then NumVal.fromTree subtree <&> ABNF.NumValElement
-            else if r == ProseVal.ref then ProseVal.fromTree subtree <&> ABNF.ProseValElement
+            if Ref.eq r Rulename.ref then Right . ABNF.RulenameElement . Rulename.fromTree $ subtree  
+            else if Ref.eq r Group.ref then Group.fromTree subtree <&> ABNF.GroupElement
+            else if Ref.eq r Option.ref then Option.fromTree subtree <&> ABNF.OptionElement
+            else if Ref.eq r CharVal.ref then CharVal.fromTree subtree <&> ABNF.CharValElement
+            else if Ref.eq r NumVal.ref then NumVal.fromTree subtree <&> ABNF.NumValElement
+            else if Ref.eq r ProseVal.ref then ProseVal.fromTree subtree <&> ABNF.ProseValElement
             else Left "element must be rulename | group | option | char-val | num-val | prose-val"
         _ -> Left "structural mismatch for <element>"

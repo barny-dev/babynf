@@ -4,6 +4,8 @@ module Data.BAByNF.ABNF.Rules.Repetition
     , fromTree
     ) where
 
+import Data.List qualified as List
+
 import Data.BAByNF.Util.Ascii qualified as Ascii
 
 import Data.BAByNF.Core.Tree (Tree)
@@ -18,12 +20,28 @@ ref :: ABNF.Rulename
 ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "repetition")
 
 rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition _ 
---  ref (Grammar.RuleDef . Grammar.asAlt $ (Grammar.opt (Repeat.ref ??)) +! (Element.ref ??))
+rule = ABNF.Rule ref ABNF.BasicDefinition 
+    . ABNF.Elements
+    . ABNF.Alternation
+    . List.singleton
+    . ABNF.Concatenation
+    $ 
+        [ ABNF.Repetition ABNF.NoRepeat 
+            . ABNF.OptionElement
+            . ABNF.Option
+            . ABNF.Alternation
+            . List.singleton
+            . ABNF.Concatenation
+            . List.singleton
+            . ABNF.Repetition ABNF.NoRepeat
+            $ ABNF.RulenameElement Repeat.ref
+        , ABNF.Repetition ABNF.NoRepeat
+            $ ABNF.RulenameElement Element.ref
+        ]
 
 fromTree :: Tree ABNF.Rulename -> Either String ABNF.Repetition
 fromTree tree =
-    -- let rd = maybe (Right Nothing) (fmap Just . Repeat.fromTree)  (Tree.getChildWithRef (Grammar.toRef Repeat.ref) tree)
-    --     e = Tree.tryGetChildWithRef (Grammar.toRef Element.ref) tree >>= Element.fromTree
-    --  in rd >>= \rd' ->
-    --      e >>= \e' -> return $ Grammar.Rep rd' e'
+    let rd = maybe (Right ABNF.NoRepeat) Repeat.fromTree  (Tree.getChildWithRef Repeat.ref tree)
+        e = Tree.tryGetChildWithRef Element.ref tree >>= Element.fromTree
+     in rd >>= \rd' ->
+         e >>= \e' -> return $ ABNF.Repetition rd' e'
