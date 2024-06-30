@@ -6,35 +6,20 @@ module Data.BAByNF.ABNF.Rules.CharVal
     ) where
 
 import Data.Functor ((<&>))
-import Data.Word (Word8)
-
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as ByteString
 
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF.Grammar ((+!), (|!), (??), (+?))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
-import Data.BAByNF.ABNF.Core qualified as Core
 
-import Data.Maybe (listToMaybe, fromMaybe)
-import Data.Functor ((<&>))
+import Data.Maybe (fromMaybe)
 import Data.List qualified as List
 
 import Control.Applicative ((<|>))
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.Util.Binary qualified as Binary
-import Data.BAByNF.Util.Stream (Stream)
-import Data.BAByNF.Util.Stream qualified as Stream
-
-import Data.BAByNF.Core.Tree (Tree)
-import Data.BAByNF.Core.Tree qualified as Tree
 
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitiveString
 import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
-import Data.BAByNF.ABNF.Core qualified as Core
 
 ref :: ABNF.Rulename
 ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "char-val")

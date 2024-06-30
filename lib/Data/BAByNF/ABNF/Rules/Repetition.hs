@@ -12,7 +12,6 @@ import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 
 import Data.BAByNF.ABNF qualified as ABNF
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Rules.Repeat qualified as Repeat
 import Data.BAByNF.ABNF.Rules.Element qualified as Element
 

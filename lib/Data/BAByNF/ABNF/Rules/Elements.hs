@@ -8,8 +8,6 @@ import Data.Functor ((<&>))
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.ABNF.Grammar ((+!), (??))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
@@ -29,7 +27,7 @@ rule = ABNF.Rule ref ABNF.BasicDefinition
     . ABNF.Concatenation
     $ 
         [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Alternation.ref)
-        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 0) ABNF.UnBound) (ABNF.RulenameElement CWsp.ref)
+        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) (ABNF.RulenameElement CWsp.ref)
         ]
 
 fromTree :: Tree ABNF.Rulename -> Either String ABNF.Elements

@@ -5,18 +5,13 @@ module Data.BAByNF.ABNF.Rules.HexVal
     , fromTree
     ) where
 
-import Data.Functor ((<&>))
 import Data.List qualified as List
 
 import Data.ByteString qualified as ByteString
 
-import Data.BAByNF.ABNF.Grammar ((+!), (|!))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.Util.Stream (Stream)
-import Data.BAByNF.Util.Stream qualified as Stream
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.List (uncons)

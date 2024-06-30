@@ -1,4 +1,4 @@
-module Data.BAByNF.Util.Ascii.Test (tests) where
+module Data.BAByNF.Util.Ascii.Test where
 
 import Data.Word (Word8)
 import Data.Char (chr, ord)

@@ -11,8 +11,6 @@ import Data.BAByNF.Util.Ascii qualified as Ascii
 
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF.Grammar ((+?))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Rules.Rulename qualified as Rulename
 import Data.BAByNF.ABNF.Rules.DefinedAs qualified as DefinedAs
 import Data.BAByNF.ABNF.Rules.Elements qualified as Elements

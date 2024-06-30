@@ -1,27 +1,8 @@
 {-# LANGUAGE LambdaCase #-}
 module Data.BAByNF.ABNF.Rules where
 
-import Data.Bits qualified as Bits
-import Data.Word (Word8)
-import Data.List.NonEmpty (NonEmpty ((:|)))
-import Data.Maybe (fromMaybe)
-import Data.Maybe qualified as Maybe
-import Data.Functor ((<&>))
-
-
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as ByteString
-import Data.ByteString.Char8 qualified as ByteString.Char8
-
-import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.ABNF.Grammar
-import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.Core.RefDict (RefDict (..))
-import Data.BAByNF.Core.Tree (Tree)
-import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.Util.Stream (Stream)
-import Data.BAByNF.Util.Stream qualified as Stream
-
+import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Rules.Option qualified as Option
 import Data.BAByNF.ABNF.Rules.CharVal qualified as CharVal
@@ -44,13 +25,14 @@ import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.ABNF.Rules.DefinedAs qualified as DefinedAs
 import Data.BAByNF.ABNF.Rules.Rulename qualified as Rulename
 import Data.BAByNF.ABNF.Rules.Rulelist qualified as Rulelist
+import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitiveString
+import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
+import Data.BAByNF.ABNF.Rules.QuotedString qualified as QuotedString
 
 newtype Rules = Rules (RefDict ABNF.Rulename ABNF.Rule)
 
-rules :: Rules
-rules = Rules . RefDict . map toEntry $ rulelist
-    where toEntry rule = let ABNF.Rule name _ _ = rule in (name, rule)
-          rulelist = Core.rules ++
+rules :: ABNF.Rulelist
+rules = ABNF.Rulelist $ Core.rules ++
             [ Rulelist.rule
             , Rule.rule
             , Rulename.rule
@@ -72,4 +54,7 @@ rules = Rules . RefDict . map toEntry $ rulelist
             , DecVal.rule
             , HexVal.rule
             , ProseVal.rule
+            , CaseInsensitiveString.rule
+            , CaseSensitiveString.rule
+            , QuotedString.rule
             ]

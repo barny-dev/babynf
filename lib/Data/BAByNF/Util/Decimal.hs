@@ -10,7 +10,8 @@ data Digit = D0
            | D7
            | D8
            | D9 
-newtype Seq = Seq [Digit]
+           deriving (Eq, Ord)
+newtype Seq = Seq [Digit] deriving Eq
 
 val :: Integral a => Digit -> a
 val D0 = 0
@@ -44,3 +45,18 @@ fromVal 8 = Just D8
 fromVal 9 = Just D9
 fromVal _ = Nothing
 
+instance Show Seq where
+  show (Seq x) = map toChar x
+
+toChar :: Digit -> Char
+toChar d = case d of
+  D0 -> '0'
+  D1 -> '1'
+  D2 -> '2'
+  D3 -> '3'
+  D4 -> '4'
+  D5 -> '5'
+  D6 -> '6'
+  D7 -> '7'
+  D8 -> '8'
+  D9 -> '9'

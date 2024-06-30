@@ -9,7 +9,6 @@ import Data.Word (Word8)
 
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as ByteString
-import Data.ByteString.Char8 qualified as ByteString.Char8
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Util.Hex qualified as Hex
@@ -18,8 +17,6 @@ import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 
 import Data.BAByNF.ABNF qualified as ABNF
-import Data.BAByNF.ABNF.Grammar ((??), (+!), (|!), (+?))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Core qualified as Core
 
 ref :: ABNF.Rulename

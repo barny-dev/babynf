@@ -9,8 +9,6 @@ import Data.ByteString qualified as ByteString
 import Data.List qualified as List
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF.Grammar ((+!), (|?))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Rules.BinVal qualified as BinVal
 import Data.BAByNF.ABNF.Rules.DecVal qualified as DecVal
 import Data.BAByNF.ABNF.Rules.HexVal qualified as HexVal

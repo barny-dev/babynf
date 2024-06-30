@@ -5,7 +5,6 @@ module Data.BAByNF.ABNF.Rules.Concatenation
     , fromTree
     ) where
 
-import Data.List.NonEmpty (NonEmpty((:|)))
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
@@ -14,8 +13,6 @@ import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 
 import Data.BAByNF.ABNF qualified as ABNF
-import Data.BAByNF.ABNF.Grammar ((+!), (??))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Rules.Repetition qualified as Repetition
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 
@@ -29,7 +26,7 @@ rule = ABNF.Rule ref ABNF.BasicDefinition $ ABNF.Elements
     . ABNF.Concatenation
     $ 
         [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Repetition.ref)
-          ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) 
+        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) 
             . ABNF.GroupElement
             . ABNF.Group
             . ABNF.Alternation

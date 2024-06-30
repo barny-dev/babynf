@@ -17,7 +17,8 @@ data Digit
     | XD
     | XE
     | XF
-newtype Seq = Seq [Digit]
+    deriving (Eq, Ord)
+newtype Seq = Seq [Digit] deriving Eq
 
 val :: (Integral a) => Digit -> a
 val X0 = 0
@@ -62,3 +63,25 @@ fromVal 13 = Just XD
 fromVal 14 = Just XE
 fromVal 15 = Just XF
 fromVal _ = Nothing
+
+instance Show Seq where
+    show (Seq x) = map toChar x
+
+toChar :: Digit -> Char
+toChar d = case d of
+    X0 -> '0'
+    X1 -> '1'
+    X2 -> '2'
+    X3 -> '3'
+    X4 -> '4'
+    X5 -> '5'
+    X6 -> '6'
+    X7 -> '7'
+    X8 -> '8'
+    X9 -> '9'
+    XA -> 'A'
+    XB -> 'B'
+    XC -> 'C'
+    XD -> 'D'
+    XE -> 'E'
+    XF -> 'F'

@@ -7,11 +7,6 @@ module Data.BAByNF.ABNF.Rules.DecVal
 
 import Data.Functor ((<&>))
 
-import Data.ByteString (ByteString)
-import Data.ByteString qualified as ByteString
-
-import Data.BAByNF.ABNF.Grammar ((+!), (|!))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree

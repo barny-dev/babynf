@@ -21,7 +21,7 @@ rule :: ABNF.Rule
 rule = ABNF.Rule ref ABNF.BasicDefinition 
     (ABNF.Elements . ABNF.Alternation . List.singleton . ABNF.Concatenation $
         [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Core.alphaRef)
-        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 0) ABNF.UnBound) $
+        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) $
             ABNF.GroupElement . ABNF.Group . ABNF.Alternation $
                 [ ABNF.Concatenation . List.singleton $
                     ABNF.Repetition ABNF.NoRepeat $ ABNF.RulenameElement Core.alphaRef

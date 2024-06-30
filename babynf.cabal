@@ -34,14 +34,18 @@ library
         Data.BAByNF.Core.RefDict,
         Data.BAByNF.ABNF,
         Data.BAByNF.ABNF.Grammar,
+        Data.BAByNF.ABNF.Model,
         Data.BAByNF.ABNF.Core,
+        Data.BAByNF.ABNF.Parse,
         Data.BAByNF.ABNF.Rules,
+        Data.BAByNF.ABNF.Rules.Rule,
         Data.BAByNF.ABNF.Rules.Rulename,
         Data.BAByNF.ABNF.Rules.Rulelist,
         Data.BAByNF.ABNF.Rules.Alternation,
         Data.BAByNF.ABNF.Rules.Concatenation,
         Data.BAByNF.ABNF.Rules.Repetition,
         Data.BAByNF.ABNF.Rules.Repeat,
+        Data.BAByNF.ABNF.Rules.DefinedAs,
         Data.BAByNF.ABNF.Rules.Element,
         Data.BAByNF.ABNF.Rules.Elements,
         Data.BAByNF.ABNF.Rules.Group,
@@ -61,7 +65,7 @@ library
     other-modules:
     -- other-extensions:
     build-depends:
-        base >= 4.9 && < 5,
+        base >= 4.9 && < 4.19,
         ascii ^>= 1.7.0.1,
         bytestring ^>= 0.11.4.0,
         attoparsec ^>= 0.14.4
@@ -77,15 +81,41 @@ test-suite babynf-test
         Data.BAByNF.Test.Util,
         Data.BAByNF.ABNF.Grammar.Test,
         Data.BAByNF.ABNF.Rules.Test,
+        Data.BAByNF.ABNF.Rules.Alternation.Test,
+        Data.BAByNF.ABNF.Rules.BinVal.Test,
+        Data.BAByNF.ABNF.Rules.CaseInsensitiveString.Test,
+        Data.BAByNF.ABNF.Rules.CaseSensitiveString.Test,
+        Data.BAByNF.ABNF.Rules.CharVal.Test,
+        Data.BAByNF.ABNF.Rules.CNl.Test,
+        Data.BAByNF.ABNF.Rules.Comment.Test,
+        Data.BAByNF.ABNF.Rules.CWsp.Test,
+        Data.BAByNF.ABNF.Rules.DecVal.Test,
+        Data.BAByNF.ABNF.Rules.DefinedAs.Test,
+        Data.BAByNF.ABNF.Rules.Element.Test,
+        Data.BAByNF.ABNF.Rules.Elements.Test,
+        Data.BAByNF.ABNF.Rules.Group.Test,
+        Data.BAByNF.ABNF.Rules.HexVal.Test,
+        Data.BAByNF.ABNF.Rules.NumVal.Test,
+        Data.BAByNF.ABNF.Rules.Option.Test,
+        Data.BAByNF.ABNF.Rules.ProseVal.Test,
+        Data.BAByNF.ABNF.Rules.QuotedString.Test,
+        Data.BAByNF.ABNF.Rules.Repeat.Test,
+        Data.BAByNF.ABNF.Rules.Repetition.Test,
+        Data.BAByNF.ABNF.Rules.Rule.Test,
+        Data.BAByNF.ABNF.Rules.Rulelist.Test,
+        Data.BAByNF.ABNF.Rules.Rulename.Test,
         Data.BAByNF.Parseable.Test
     -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base >= 4.9 && < 5,
+        base >= 4.9 && < 4.19,
         bytestring == 0.11.4.0,
         babynf == 0.1.0.0,
         tasty == 1.4.3,
         tasty-hunit == 0.10.0.3,
         attoparsec == 0.14.4
+    build-tool-depends:
+        tasty-discover:tasty-discover
+

@@ -5,13 +5,12 @@ module Data.BAByNF.Core.Parseable
     , TreeParser
     ) where
 
-import Data.Maybe (fromMaybe)
 import Data.List.NonEmpty (NonEmpty ((:|)))
-import Data.List.NonEmpty qualified as NonEmpty
+import Data.List.NonEmpty qualified as List.NonEmpty
 
 import Data.Attoparsec.ByteString qualified as Attoparsec
-
-import Data.BAByNF.Core.Tree (Tree, Node (..))
+import Debug.Trace (trace)
+import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.Core.Ref (Ref)
 import Data.BAByNF.Core.Ref qualified as Ref
@@ -48,10 +47,10 @@ data Parseable a where
 instance (Show a) => Show (Parseable a) where
     show :: Parseable a -> String
     show x = case x of
-        Seq y -> "Seq " ++ show y
-        Alt y -> "Alt " ++ show y
-        Rep a b -> "Rep (" ++ show b ++ ", " ++ show b ++ ") " ++ show a
-        Rule r -> "Rule " ++ show r
+        Seq y -> "Seq( " ++ show (List.NonEmpty.toList y) ++ " )"
+        Alt y -> "Alt( " ++ show (List.NonEmpty.toList y) ++ " )"
+        Rep a b -> "Rep( {" ++ show (Repeat.required b) ++ "," ++ show (Repeat.optional b) ++  "}->" ++ show a ++ ")"
+        Rule r -> "Rule (" ++ show r ++ ")"
         Unit desc _ -> "Unit <" ++ desc ++ ">"
 
 data ParserFocus a where
@@ -61,8 +60,8 @@ data ParserFocus a where
     After :: Ref a => Tree a -> ParserFocus a
 deriving instance (Show a) => Show (ParserFocus a)
 
-toParser :: (Ref a) => Dict a -> Parseable a -> TreeParser a
-toParser grammar parseable = toParser' $ ParserState { parserEnvironment = ParserEnvironment { parserGrammar = grammar, parserContextStack = []}, parserFocus = Before parseable }
+toParser :: (Ref a, Show a) => Dict a -> Parseable a -> TreeParser a
+toParser grammar parseable = toParser' $ ParserState { parserEnvironment = ParserEnvironment { parserGrammar = grammar, parserContextStack = []}, parserFocus = Before (Seq $ parseable :| [Unit "endOfInput" $ Attoparsec.endOfInput >> return Tree.empty])  }
 
 alts :: (Ref a) => [Parseable a] -> Maybe (Parseable a)
 alts [] = Nothing
@@ -76,14 +75,27 @@ data Action a where
     Parse :: Ref a => TreeParser a -> Action a
     Panic :: String -> Action a
 
-applyAction :: (Ref a) => ParserEnvironment a -> Action a -> TreeParser a
+applyAction :: (Ref a, Show a) => ParserEnvironment a -> Action a -> TreeParser a
 applyAction env (Return tree) =
     case pop env of
         Nothing -> return tree
-        Just (env', ctx) -> toParser' ParserState { parserEnvironment = env', parserFocus = OnReturn ctx tree }
-applyAction env (Split ctx p) = let env' = push env ctx in toParser' ParserState { parserEnvironment = env', parserFocus = Before p  }
-applyAction env (Branch ctx p) = Attoparsec.choice [ applyAction env (Split ctx p), toParser' ParserState { parserEnvironment = env, parserFocus = OnFailure ctx }]
-applyAction env (Parse p) = p >>= \tree -> toParser' $ ParserState { parserEnvironment = env,  parserFocus = After tree }
+        Just (env', ctx) -> 
+            toParser' ParserState { parserEnvironment = env'
+                                  , parserFocus = OnReturn ctx tree 
+                                  }
+applyAction env (Split ctx p) = 
+    let env' = push env ctx 
+     in toParser' ParserState { parserEnvironment = env'
+                              , parserFocus = Before p  
+                              }
+applyAction env (Branch ctx p) = 
+    Attoparsec.choice [ applyAction env (Split ctx p)
+                      , toParser' ParserState { parserEnvironment = env, parserFocus = OnFailure ctx }
+                      ]
+applyAction env (Parse p) = 
+    p >>= \tree -> toParser' ParserState { parserEnvironment = env
+                                         , parserFocus = After tree 
+                                         }
 applyAction _ (Panic withMsg) = fail withMsg
 
 pop :: (Ref a) => ParserEnvironment a -> Maybe (ParserEnvironment a, ParserContext a)
@@ -95,9 +107,9 @@ pop ParserEnvironment { parserGrammar = grammar, parserContextStack = contextSta
 push :: (Ref a) => ParserEnvironment a -> ParserContext a -> ParserEnvironment a
 push ParserEnvironment { parserGrammar = grammar, parserContextStack = contextStack} ctx = ParserEnvironment { parserGrammar = grammar, parserContextStack = ctx : contextStack }
 
-toParser' :: Ref a => ParserState a -> TreeParser a
+toParser' :: (Ref a, Show a) => ParserState a -> TreeParser a
 toParser' state =
-    let action = case parserFocus state of
+    let action = case parserFocus state_trace of
             Before (Unit _ p) -> Parse p
             Before (Rule ref) ->
                 let maybeP = lookupDef ref (parserEnvironment state)
@@ -126,17 +138,25 @@ toParser' state =
             OnReturn RuleContext { ruleRef = ref } tree -> Return $ Tree.singleton $ Tree.RefNode ref tree
             OnFailure AltContext { altNext = next } ->
                 case next of
-                    [] -> Panic "no more alts"
+                    [] -> --trace "Panic!" $
+                         Panic "no more alts"
                     p : next' -> Branch AltContext { altNext = next' } p
             OnFailure RepContext { repParse = _, repPrev = prev, repCount = rc } ->
                 case Repeat.state rc of
-                    Repeat.NeedMore -> Panic "more repetitions required"
+                    Repeat.NeedMore -> -- trace "Panic!" $
+                         Panic "more repetitions required"
                     _ -> Return prev
-            OnFailure _ -> Panic "failure in non-safeguarded context"
+            OnFailure _ -> --trace "Panic!" $
+                 Panic "failure in non-safeguarded context"
             After tree -> Return tree
-     in applyAction (parserEnvironment state) action
+     in applyAction (parserEnvironment state_trace) action
+    where state_trace = trace_state state
 
 lookupDef :: Ref a => a -> ParserEnvironment a -> Maybe (Parseable a)
 lookupDef ref env = lookupDef' ref (parserGrammar env)
 lookupDef' :: Ref a => a -> Dict a -> Maybe (Parseable a)
 lookupDef' ref grammar = alts $ RefDict.lookup ref grammar
+
+trace_state :: (Show a) => ParserState a -> ParserState a
+-- trace_state state = trace ("\n***\n" ++ (show . parserContextStack . parserEnvironment $ state) ++ "\n===\n" ++ (show . parserFocus $ state) ++ "\n***\n" ) state
+trace_state = id

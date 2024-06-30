@@ -32,6 +32,10 @@ empty = Tree []
 singleton :: (Ref a) => Node a -> Tree a
 singleton node = Tree [node]
 
+asSingleton :: (Ref a) => Tree a -> Maybe (Node a)
+asSingleton (Tree [x]) = Just x
+asSingleton _ = Nothing
+
 stringify :: Tree a -> ByteString
 stringify (Tree ns) = ByteString.concat . map stringifyNode $ ns
 

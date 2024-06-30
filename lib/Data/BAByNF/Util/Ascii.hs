@@ -8,11 +8,15 @@ import Data.Word (Word8)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as ByteString
 import Data.ByteString.Char8 qualified as ByteString.Char8
+
 import ASCII qualified as ASCII
+
+import Data.Attoparsec.ByteString qualified as Attoparsec.ByteString
 
 import Data.BAByNF.Util.Binary qualified as Binary
 import Data.BAByNF.Util.Decimal qualified as Decimal
 import Data.BAByNF.Util.Hex qualified as Hex
+import Control.Applicative ((<|>))
 
 lowerAlphaFirst :: Word8
 lowerAlphaFirst = 97
@@ -138,4 +142,11 @@ bsToBinaryDigit b =
         _ -> Nothing
 
 stringAsBytesUnsafe :: String -> ByteString
-stringAsBytesUnsafe = Maybe.fromJust . ASCII.unicodeStringToByteStringMaybe  
+stringAsBytesUnsafe = Maybe.fromJust . ASCII.unicodeStringToByteStringMaybe
+
+parseCaseInsensitive :: ByteString -> Attoparsec.ByteString.Parser ByteString
+parseCaseInsensitive b = Attoparsec.ByteString.take (ByteString.length b) 
+    >>= \b' -> if b `eqNoCaseBS` b' then return b' else fail "case insensitive match fail"
+
+parseCaseSensitive :: ByteString -> Attoparsec.ByteString.Parser ByteString
+parseCaseSensitive b = Attoparsec.ByteString.string b <|> fail "case sensitive match fail"

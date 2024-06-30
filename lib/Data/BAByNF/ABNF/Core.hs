@@ -7,8 +7,6 @@ import Data.BAByNF.Util.Hex qualified as Hex
 
 import Data.BAByNF.ABNF qualified as ABNF
 
-import qualified Data.BAByNF.ABNF.Grammar as Grammar
-
 rules :: [ABNF.Rule]
 rules =
     [ alphaRule

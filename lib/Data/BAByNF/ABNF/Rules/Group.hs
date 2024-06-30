@@ -7,8 +7,6 @@ module Data.BAByNF.ABNF.Rules.Group
 import Data.Functor ((<&>))
 import Data.List qualified as List
 import Data.BAByNF.Core.Tree (Tree)
-import Data.BAByNF.ABNF.Grammar ((+!), (??))
-import Data.BAByNF.ABNF.Grammar qualified as Grammar
 import {-# SOURCE #-} Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.Util.Ascii qualified as Ascii
