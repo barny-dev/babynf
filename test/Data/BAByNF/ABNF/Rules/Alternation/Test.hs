@@ -9,12 +9,13 @@ import Test.Tasty.HUnit qualified as HUnit
 
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
+import Data.BAByNF.Core.Tree qualified as Tree
+
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
 import Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
-import Data.BAByNF.Core.Tree qualified as Tree
 
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.Alternation"
@@ -47,7 +48,16 @@ testParse = Tasty.testGroup "parse" $
 testParseIntoModel :: Tasty.TestTree
 testParseIntoModel = Tasty.testGroup "parseIntoModel" $
     [ ("someRule", Model.Alternation . List.singleton . Model.Concatenation . List.singleton $ Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "someRule"))
-
+    , ("thisRule / thatRule / anotherRule andAfterThatToo", 
+        Model.Alternation 
+            [ Model.Concatenation . List.singleton $ Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "thisRule")
+            , Model.Concatenation . List.singleton $ Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "thatRule")
+            , Model.Concatenation
+                [ Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "anotherRule")
+                , Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "andAfterThatToo")
+                ]
+            ]
+      )
     ] <&> \(s, o) -> HUnit.testCase (show s) $
         do 
             tree <- either 

@@ -75,7 +75,7 @@ takeWhileMap func = do
     opt <- takeIfMap func
     case opt of
         Nothing -> return []
-        Just e -> drop >> takeWhileMap func >>= (\es -> return $ e : es)
+        Just e -> takeWhileMap func >>= (\es -> return $ e : es)
 
 findMap :: (e -> Maybe a) -> Stream e (Maybe a)
 findMap func = dropWhile (isNothing . func) >> takeIfMap func
