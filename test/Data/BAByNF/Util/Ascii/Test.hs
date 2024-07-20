@@ -10,8 +10,11 @@ import qualified Data.ByteString as BS
 
 import qualified Data.BAByNF.Util.Ascii as A
 
-tests :: T.TestTree
-tests = "Util.Ascii tests" `T.testGroup`
+moduleUnderTest :: String
+moduleUnderTest = "Data.BAByNF.Util.Ascii"
+
+testModule :: T.TestTree
+testModule = moduleUnderTest `T.testGroup`
     [ rangedCompareTest
     , lowerToUpperTest
     , eqNoCaseTest

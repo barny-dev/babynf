@@ -16,8 +16,8 @@ import Data.BAByNF.ABNF.Rules.Comment qualified as Comment
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.Comment"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     ]

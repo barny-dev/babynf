@@ -95,18 +95,18 @@ fromTree tree = Stream.runStream_ stream (Tree.nodes tree)
                                              in ABNF.SeqDecVal bytes
                                          )
                                 | otherwise -> return (Left "unexpected char")
-                            _ -> return (Left "bin-num pattern not matched")
+                            _ -> return (Left "dec-num pattern not matched")
                         )
                    )
           expectD = Stream.takeIf isD <&> maybe (Left "expected d or D") (const (Right ()))
           isD node = Tree.isStringEq node (Ascii.bs 'd') || Tree.isStringEq node (Ascii.bs 'D')
-          nodeToDecimal node =  if not (Tree.isRefOf node Core.bitRef) then Nothing
+          nodeToDecimal node =  if not (Tree.isRefOf node Core.digitRef) then Nothing
             else let b = Tree.stringifyNode node in Ascii.bsToDecimalDigit b
           takeByte = Stream.takeWhileMap nodeToDecimal <&>
             \case
                 [] -> Nothing
                 decimals -> Just (Decimal.Seq decimals)
-          takeByteOrLeft = takeByte <&> maybe (Left "not bits") Right
+          takeByteOrLeft = takeByte <&> maybe (Left "not digits") Right
           dashDecimals = (Stream.takeIf (`Tree.isStringEq` Ascii.bs '-') `Stream.propagate'` takeByte) <&> maybe (Left "not dash-bits") Right
           dotDecimals = (Stream.takeIf (`Tree.isStringEq` Ascii.bs '.') `Stream.propagate'` takeByte) <&> maybe (Left "not dot-bits") Right
           exhaust m acc = Stream.hasNext >>= \cond -> if cond

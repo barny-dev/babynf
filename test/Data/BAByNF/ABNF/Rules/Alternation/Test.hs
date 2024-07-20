@@ -20,8 +20,8 @@ import Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.Alternation"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     , testParseIntoModel

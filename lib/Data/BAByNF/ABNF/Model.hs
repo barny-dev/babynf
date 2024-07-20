@@ -13,7 +13,7 @@ import Data.BAByNF.Core.Ref qualified as Ref
 
 newtype Rulelist = Rulelist [Rule]
 
-data DefinedAs = BasicDefinition | IncrementalAlternative
+data DefinedAs = BasicDefinition | IncrementalAlternative deriving Eq
 
 data Rule = Rule Rulename DefinedAs Elements
 

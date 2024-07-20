@@ -16,8 +16,8 @@ import Data.BAByNF.ABNF.Rules.CNl qualified as CNl
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.CNl"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     ]

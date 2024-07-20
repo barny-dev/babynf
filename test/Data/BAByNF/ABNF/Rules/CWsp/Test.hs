@@ -19,8 +19,8 @@ import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.CWsp"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     ]

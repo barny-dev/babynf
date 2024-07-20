@@ -16,8 +16,8 @@ import Data.BAByNF.ABNF.Rules.Group qualified as Group
 moduleUnderTest :: String
 moduleUnderTest = "Test-Data.BAByNF.ABNF.Rules.Group"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     ]

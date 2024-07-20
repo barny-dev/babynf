@@ -13,6 +13,8 @@ import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.ABNF qualified as ABNF
 
+import Debug.Trace
+
 ref :: ABNF.Rulename
 ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "defined-as")
 
@@ -50,8 +52,8 @@ rule = ABNF.Rule ref ABNF.BasicDefinition $ ABNF.Elements
 
 fromTree :: Tree ABNF.Rulename -> Either String ABNF.DefinedAs
 fromTree tree =
-    let (_, mid, _) = Util.List.lrsplitWhenNot (Tree.nodes tree) isCWsp
-     in case mid of
+    let (_, mid, _) = Util.List.lrsplitWhenNot (Tree.nodes (trace (">>>>>1"++ show tree) tree)) isCWsp
+     in case trace (">>>>>2 " ++ show mid) mid of
         [Tree.StringNode x] | x == Ascii.stringAsBytesUnsafe "=" -> Right ABNF.BasicDefinition
                             | x == Ascii.stringAsBytesUnsafe "=/" -> Right ABNF.IncrementalAlternative
                             | otherwise -> Left "DefinedAs must be \'=\' | \'=/\'"

@@ -26,21 +26,31 @@ lsplitWhenNot l matches =
     case l of 
         [] -> ([], []) 
         (focus:rest) ->
-            if matches focus 
+            if matches focus
                 then let (prefixTail, suffix) = lsplitWhenNot rest matches
                     in (focus:prefixTail, suffix)
-            else ([], rest)
+            else ([], l)
 
 rsplitWhenNot :: [a] -> (a -> Bool) -> ([a], [a])
-rsplitWhenNot l matches =
-    case l of
-        [] -> ([], [])
-        _ -> let rl = reverse l
-                 (suffix, acc) = drainWhile rl [] matches
-                 prefix = reverse acc
-              in (prefix, suffix)
+rsplitWhenNot l matches = foldr fn ([], []) l 
+    where fn x acc = case acc of
+            ([], back) | matches x -> ([], x:back)  
+                       | otherwise -> ([x], back)
+            (front, back) -> (x:front, back)
+rstrip :: [a] -> (a -> Bool) -> [a]
+rstrip l matches = foldr fn [] l
+    where fn x acc = case acc of
+            [] | matches x -> []
+               | otherwise -> [x]
+            _ -> x:acc
 
-lrsplitWhenNot :: [a] -> (a -> Bool) -> ([a], [a], [a])
+lstrip :: [a] -> (a -> Bool) -> [a]
+lstrip l matches = case l of
+    [] -> []
+    x:xs | matches x -> lstrip xs matches
+         | otherwise -> l
+
+lrsplitWhenNot :: Show a => [a] -> (a -> Bool) -> ([a], [a], [a])
 lrsplitWhenNot x matches =
     let (l, x') = lsplitWhenNot x matches
         (m, r) = rsplitWhenNot x' matches

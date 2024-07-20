@@ -17,8 +17,8 @@ import Data.BAByNF.ABNF.Rules.Rulelist qualified as Rulelist
 moduleUnderTest :: String
 moduleUnderTest = "Data.BAByNF.ABNF.Rules.Rulelist"
 
-test_module :: Tasty.TestTree
-test_module = Tasty.testGroup moduleUnderTest 
+testModule :: Tasty.TestTree
+testModule = Tasty.testGroup moduleUnderTest 
     [ testPrettyPrint
     , testParse
     ]
