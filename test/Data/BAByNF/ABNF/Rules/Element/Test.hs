@@ -11,9 +11,9 @@ import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 import Data.BAByNF.Util.Hex qualified as Hex
 
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.Element qualified as Element
 import Data.BAByNF.ABNF.Model qualified as Model
 
@@ -30,7 +30,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint Element.rule @?= "element = rulename / group / option / char-val / num-val / prose-val"
+    prettyPrint Element.rule @?= "element = rulename / group / option / char-val / num-val / prose-val"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

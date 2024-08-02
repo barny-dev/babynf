@@ -1,7 +1,6 @@
 module Data.BAByNF.ABNF.Rules.CWsp.Test where
 
-import Data.List qualified as List
-import Data.Functor ((<&>), void)
+import Data.Functor ((<&>))
 
 import Test.Tasty qualified as Tasty
 import Test.Tasty.HUnit ((@?=))
@@ -9,11 +8,9 @@ import Test.Tasty.HUnit qualified as HUnit
 
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
-import Data.BAByNF.Core.Tree qualified as Tree
-
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 
 moduleUnderTest :: String
@@ -27,7 +24,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint CWsp.rule @?= "c-wsp = WSP / (c-nl WSP)"
+    prettyPrint CWsp.rule @?= "c-wsp = WSP / (c-nl WSP)"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

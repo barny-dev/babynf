@@ -10,9 +10,9 @@ import Test.Tasty.HUnit qualified as HUnit
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.Rule qualified as Rule
 import Data.BAByNF.ABNF.Model qualified as Model
 
@@ -29,7 +29,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint Rule.rule @?= "rule = rulename defined-as elements c-nl"
+    prettyPrint Rule.rule @?= "rule = rulename defined-as elements c-nl"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

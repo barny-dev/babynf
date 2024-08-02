@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 module Data.BAByNF.ABNF.Rules.CharVal
     ( ref
     , rule
@@ -33,7 +32,7 @@ rule = ABNF.Rule ref ABNF.BasicDefinition
         , ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat $ ABNF.RulenameElement CaseSensitiveString.ref
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.CharVal -- TODO: support RFC 7405
+fromTree :: Tree ABNF.Rulename -> Either String ABNF.CharVal
 fromTree tree =
     fromMaybe (Left "no string") $ tryGetInsensitive tree <|> tryGetSensitive tree
     where tryGetInsensitive t = do
@@ -41,16 +40,4 @@ fromTree tree =
             return $ CaseInsensitiveString.fromTree subtree <&> ABNF.CaseInsensitiveCharVal
           tryGetSensitive t = do
             subtree <- Tree.getChildWithRef CaseSensitiveString.ref t
-            return $ CaseSensitiveString.fromTree subtree <&> ABNF.CaseSensitiveCharVal 
-
-
-
-    -- maybe (Left "char-val must be between \" and \"") Right $
-    --     unconsnoc (Tree.stringify tree) >>= \(h, m, l) ->
-    --         if h == 34 && l == 34
-    --             then Just (Grammar.ArrayTerm Grammar.CaseInsensitive m)
-    --             else Nothing
-
--- unconsnoc :: ByteString -> Maybe (Word8, ByteString, Word8)
--- unconsnoc bs = ByteString.uncons bs >>= \(h, t) -> ByteString.unsnoc t <&> \(m, l) -> (h, m, l)
-
+            return $ CaseSensitiveString.fromTree subtree <&> ABNF.CaseSensitiveCharVal

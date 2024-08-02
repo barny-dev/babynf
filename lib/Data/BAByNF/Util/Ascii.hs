@@ -66,8 +66,8 @@ eqNoCase a b =
            Just bc -> if bc == ac
                then a == b
                else if ac == UpperAlpha
-                   then a == (lowerToUpperUnsafe b)
-                   else b == (lowerToUpperUnsafe a)
+                   then a == lowerToUpperUnsafe b
+                   else b == lowerToUpperUnsafe a
 
 eqNoCaseSeq :: [Word8] -> [Word8] -> Bool
 eqNoCaseSeq [] [] = True
@@ -112,7 +112,7 @@ toHexSeq :: ByteString -> Maybe Hex.Seq
 toHexSeq b = toHexDigs b <&> Hex.Seq
     where toHexDigs x = ByteString.uncons x >>=
             \(h, rest) ->  toHexDigit h >>=
-            \hexdig -> if ByteString.null rest 
+            \hexdig -> if ByteString.null rest
                 then Just [hexdig]
                 else toHexDigs rest >>= \hexdigs -> Just (hexdig:hexdigs)
 
@@ -130,7 +130,7 @@ bsToDecimalDigit b =
 
 toBinaryDigit :: Word8 -> Maybe Binary.Digit
 toBinaryDigit w
-    | w `elem` [48, 49] = Binary.fromVal(w - 48)
+    | w `elem` [48, 49] = Binary.fromVal (w - 48)
     | otherwise = Nothing
 
 bsToBinaryDigit :: ByteString -> Maybe Binary.Digit
@@ -147,7 +147,7 @@ stringAsBytesUnsafe s =
         Nothing -> ByteString.Char8.pack s
 
 parseCaseInsensitive :: ByteString -> Attoparsec.ByteString.Parser ByteString
-parseCaseInsensitive b = Attoparsec.ByteString.take (ByteString.length b) 
+parseCaseInsensitive b = Attoparsec.ByteString.take (ByteString.length b)
     >>= \b' -> if b `eqNoCaseBS` b' then return b' else fail "case insensitive match fail"
 
 parseCaseSensitive :: ByteString -> Attoparsec.ByteString.Parser ByteString

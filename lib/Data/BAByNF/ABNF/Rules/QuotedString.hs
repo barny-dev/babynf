@@ -39,7 +39,7 @@ rule = ABNF.Rule ref  ABNF.BasicDefinition
         ]
     )
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.QuotedString -- TODO: support RFC 7405
+fromTree :: Tree ABNF.Rulename -> Either String ABNF.QuotedString
 fromTree tree =
     maybe (Left "quoted-string must be between \" and \"") Right $
         unconsnoc (Tree.stringify tree) >>= \(h, m, l) ->

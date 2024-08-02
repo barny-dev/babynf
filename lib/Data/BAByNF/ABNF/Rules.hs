@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 module Data.BAByNF.ABNF.Rules where
 
 import Data.BAByNF.Core.RefDict (RefDict (..))
@@ -29,8 +28,7 @@ import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitive
 import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
 import Data.BAByNF.ABNF.Rules.QuotedString qualified as QuotedString
 
-newtype Rules = Rules (RefDict ABNF.Rulename ABNF.Rule)
-
+-- todo: move out core rules to opt-in abnf parser configuration element
 rules :: ABNF.Rulelist
 rules = ABNF.Rulelist $ Core.rules ++
             [ Rulelist.rule

@@ -13,10 +13,10 @@ import Data.BAByNF.Util.Hex qualified as Hex
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.NumVal qualified as NumVal
 
 moduleUnderTest :: String
@@ -31,7 +31,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint NumVal.rule @?= "num-val = \"%\" (bin-val / dec-val / hex-val)"
+    prettyPrint NumVal.rule @?= "num-val = \"%\" (bin-val / dec-val / hex-val)"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

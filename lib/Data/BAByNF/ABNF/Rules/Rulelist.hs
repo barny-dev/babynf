@@ -18,8 +18,6 @@ import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.ABNF.Rules.CNl qualified as CNl
 import Data.BAByNF.ABNF.Rules.Rule qualified as Rule
 
-import Debug.Trace
-
 ref :: ABNF.Rulename
 ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "rulelist")
 

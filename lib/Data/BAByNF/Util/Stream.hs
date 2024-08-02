@@ -81,11 +81,11 @@ findSeqMap :: (e -> Maybe a) -> Stream e [a]
 findSeqMap func = dropWhile (isNothing . func) >> takeWhileMap func
 
 either :: Stream e (Either l a) -> (a -> Stream e b) -> Stream e (Either l b)
-either stream action = stream >>= \e -> case e of Left l -> return (Left l); Right a -> fmap Right (action a)
+either stream action = stream >>= \case Left l -> return (Left l); Right a -> fmap Right (action a)
 
 
 either' :: Stream e (Either l a) -> (a -> Stream e (Either l b)) -> Stream e (Either l b)
-either' stream action = stream >>= \e -> case e of Left l -> return (Left l); Right a -> action a
+either' stream action = stream >>= \case Left l -> return (Left l); Right a -> action a
 
 
 class Propagate (p :: Type -> Type)  where

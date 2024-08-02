@@ -5,23 +5,17 @@ module Data.BAByNF.ABNF.Rules.Element
     ) where
 
 import Data.Functor ((<&>))
--- import Data.BAByNF.Core.Tree (Tree)
--- import Data.BAByNF.Core.Tree qualified as Tree
--- import Data.BAByNF.ABNF.Grammar ((|?))
--- import Data.BAByNF.ABNF.Grammar qualified as Grammar
-import Data.BAByNF.Util.Stream qualified as Stream
+import Data.List qualified as List
+
 import {-# SOURCE #-} Data.BAByNF.ABNF.Rules.Option qualified as Option
 import Data.BAByNF.ABNF.Rules.CharVal qualified as CharVal
 import Data.BAByNF.ABNF.Rules.NumVal qualified as NumVal
 import Data.BAByNF.ABNF.Rules.Rulename qualified as Rulename
 import Data.BAByNF.ABNF.Rules.Group qualified as Group
 import Data.BAByNF.ABNF.Rules.ProseVal qualified as ProseVal
-import Data.List qualified as List
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.Util.List qualified as Util.List
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF (Element(RulenameElement))
 import Data.BAByNF.Core.Ref qualified as Ref

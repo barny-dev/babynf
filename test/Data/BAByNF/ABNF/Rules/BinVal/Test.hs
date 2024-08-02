@@ -11,10 +11,10 @@ import Data.BAByNF.Util.Binary (Seq (..), Digit (..))
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model 
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.BinVal qualified as BinVal
 
 
@@ -30,7 +30,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint BinVal.rule @?= "bin-val = \"b\" 1*BIT [1*(\".\" 1*BIT) / (\"-\" 1*BIT)]"
+    prettyPrint BinVal.rule @?= "bin-val = \"b\" 1*BIT [1*(\".\" 1*BIT) / (\"-\" 1*BIT)]"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

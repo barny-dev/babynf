@@ -1,4 +1,4 @@
-module Data.BAByNF.ABNF.Rules.CaseSensitiveString.Test where
+module Data.BAByNF.ABNF.Rules.Concatenation.Test where
 
 import Data.Functor ((<&>))
 
@@ -14,10 +14,10 @@ import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
 import Data.BAByNF.ABNF.PrettyPrint
-import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
+import Data.BAByNF.ABNF.Rules.Concatenation qualified as Concatenation
 
 moduleUnderTest :: String
-moduleUnderTest = "Data.BAByNF.ABNF.Rules.CaseSensitiveString"
+moduleUnderTest = "Data.BAByNF.ABNF.Rules.Concatenation"
 
 testModule :: Tasty.TestTree
 testModule = Tasty.testGroup moduleUnderTest 
@@ -28,31 +28,36 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    prettyPrint CaseSensitiveString.rule @?= "case-sensitive-string = \"%s\" quoted-string"
+    prettyPrint Concatenation.rule @?= "concatenation = repetition *(1*c-wsp repetition)"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $
-    [ "%s\"some string!!!\""
+    [ "rule1 rule2"
+    , "just-this-role"
+    , "1*these-rules"
     ] <&> \s -> HUnit.testCase (show s) $ 
         either 
             (\msg -> HUnit.assertFailure $ "failed to parse provided string with error: [" ++ msg ++ "]")
             (const $ return ()) 
-            (parse rules CaseSensitiveString.ref (stringAsBytesUnsafe s))
+            (parse rules Concatenation.ref (stringAsBytesUnsafe s))
 
 testParseIntoModel :: Tasty.TestTree
 testParseIntoModel = Tasty.testGroup "parseIntoModel" $
-    [ ("%s\"some string\"", Model.CaseSensitiveString (Model.QuotedString (stringAsBytesUnsafe "some string")))
+    [ ("rule1 rule2", Model.Concatenation
+                [ Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "rule1")
+                , Model.Repetition Model.NoRepeat (Model.RulenameElement . Model.Rulename $ stringAsBytesUnsafe "rule2")
+                ])
     ] <&> \(s, o) -> HUnit.testCase (show s) $
         do 
             tree <- either 
                 (\msg -> HUnit.assertFailure $ "failed to parse provided string with error: [" ++ msg ++ "]") 
                 return 
-                (parse rules CaseSensitiveString.ref (stringAsBytesUnsafe s))
-            subTree <- case Tree.asSingleton tree >>= Tree.getSubtreeIfRef CaseSensitiveString.ref of
-                Nothing -> HUnit.assertFailure $ "expected CaseSensitiveString ref node but result is tree with [" ++ show (length (Tree.nodes tree))  ++ "] children."
+                (parse rules Concatenation.ref (stringAsBytesUnsafe s))
+            subTree <- case Tree.asSingleton tree >>= Tree.getSubtreeIfRef Concatenation.ref of
+                Nothing -> HUnit.assertFailure $ "expected Concatenation ref node but result is tree with [" ++ show (length (Tree.nodes tree))  ++ "] children."
                 Just subTree -> return subTree
             model <- either
                 (\msg -> HUnit.assertFailure $ "failed to parse provided string into model with error: [" ++ msg ++ "]") 
                 return
-                (CaseSensitiveString.fromTree subTree)
+                (Concatenation.fromTree subTree)
             model @?= o

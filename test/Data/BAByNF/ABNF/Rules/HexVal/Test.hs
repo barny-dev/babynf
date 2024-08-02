@@ -11,10 +11,10 @@ import Data.BAByNF.Util.Hex (Seq (..), Digit (..))
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model 
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.HexVal qualified as HexVal
 
 moduleUnderTest :: String
@@ -29,7 +29,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint HexVal.rule @?= "hex-val = \"x\" 1*HEXDIG [1*(\".\" 1*HEXDIG) / (\"-\" 1*HEXDIG)]"
+    prettyPrint HexVal.rule @?= "hex-val = \"x\" 1*HEXDIG [1*(\".\" 1*HEXDIG) / (\"-\" 1*HEXDIG)]"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

@@ -10,10 +10,10 @@ import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.CharVal qualified as CharVal
 
 moduleUnderTest :: String
@@ -28,7 +28,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint CharVal.rule @?= "char-val = case-insensitive-string / case-sensitive-string"
+    prettyPrint CharVal.rule @?= "char-val = case-insensitive-string / case-sensitive-string"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

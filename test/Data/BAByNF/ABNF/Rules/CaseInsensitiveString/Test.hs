@@ -10,10 +10,10 @@ import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitiveString
 
 
@@ -29,7 +29,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint CaseInsensitiveString.rule @?= "case-insensitive-string = [\"%i\"] quoted-string"
+    prettyPrint CaseInsensitiveString.rule @?= "case-insensitive-string = [\"%i\"] quoted-string"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

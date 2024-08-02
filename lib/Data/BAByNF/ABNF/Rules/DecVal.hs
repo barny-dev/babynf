@@ -113,28 +113,3 @@ fromTree tree = Stream.runStream_ stream (Tree.nodes tree)
                                 then m `Stream.propagate` (\e -> exhaust m (e:acc))
                                 else return (Right (reverse acc))
           singleByte = ABNF.SeqDecVal . List.singleton
-
-
-    -- Stream.runStream_ stream (Tree.nodes tree)
-    -- where stream = takeD `Stream.propagate'`
-    --                takeNum `Stream.propagate`
-    --                 \num -> Stream.peek >>= \case
-    --                      Nothing -> return . Right $ Grammar.ArrayTerm Grammar.CaseSensitive (ByteString.singleton num)
-    --                      Just node | node `Tree.isStringEq` (Ascii.bs '-') -> dashNum `Stream.propagate` \num2 -> return . Right $ Grammar.RangeTerm num num2
-    --                                | node `Tree.isStringEq` (Ascii.bs '.') -> exhaust dotNum [num] `Stream.propagate` \nums -> return . Right $ Grammar.ArrayTerm Grammar.CaseSensitive (ByteString.pack nums)
-    --                                | otherwise -> return (Left "unexpected char")
-    --       takeD = Stream.takeIf (\node -> node `Tree.isStringEq` Ascii.bs 'd' || node `Tree.isStringEq` Ascii.bs 'D') <&> maybe (Left "expected d or D") (const (Right ()))
-    --       takeNum = Stream.takeWhile (\n -> n `Tree.isRefOf` Grammar.toRef Core.digitRef) <&> \case [] -> Left "no decimal num"; nodes -> toDecNum . ByteString.concat $ map Tree.stringifyNode nodes
-    --       toDecNum bs = toDecNum' bs 0
-    --       toDecNum' bs acc =
-    --           case ByteString.uncons bs of
-    --               Nothing -> Right acc
-    --               Just (h, r) | h >= 48 && h <= 57 -> toDecNum' r ((acc * 10) + (h - 48))
-    --                           | otherwise -> Left "non-decimal digit"
-    --       dashNum = (Stream.takeIf (`Tree.isStringEq` Ascii.bs '-') <&> maybe (Left "dash expected") (const (Right ()))) `Stream.propagate'` takeNum
-    --       dotNum = (Stream.takeIf (`Tree.isStringEq` Ascii.bs '.') <&> maybe (Left "dash expected") (const (Right ()))) `Stream.propagate'` takeNum
-    --       exhaust m acc = Stream.hasNext >>= \cond -> if cond
-    --                             then m `Stream.propagate` (\e -> exhaust m (e:acc))
-    --                             else return (Right (reverse acc))
-
-

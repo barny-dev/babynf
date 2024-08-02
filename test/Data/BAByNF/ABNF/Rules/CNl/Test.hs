@@ -8,9 +8,9 @@ import Test.Tasty.HUnit qualified as HUnit
 
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.CNl qualified as CNl
 
 moduleUnderTest :: String
@@ -24,7 +24,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint CNl.rule @?= "c-nl = comment / CRLF"
+    prettyPrint CNl.rule @?= "c-nl = comment / CRLF"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

@@ -10,10 +10,10 @@ import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF qualified as Model
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.DefinedAs qualified as DefinedAs
 
 moduleUnderTest :: String
@@ -28,7 +28,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint DefinedAs.rule @?= "defined-as = *c-wsp (\"=\" / \"=/\") *c-wsp"
+    prettyPrint DefinedAs.rule @?= "defined-as = *c-wsp (\"=\" / \"=/\") *c-wsp"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $

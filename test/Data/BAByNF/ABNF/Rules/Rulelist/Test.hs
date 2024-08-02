@@ -8,9 +8,9 @@ import Test.Tasty.HUnit ((@?=))
 import Test.Tasty.HUnit qualified as HUnit
 
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
+import Data.BAByNF.ABNF.PrettyPrint
 import Data.BAByNF.ABNF.Rules.Rulelist qualified as Rulelist
 import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
@@ -28,7 +28,7 @@ testModule = Tasty.testGroup moduleUnderTest
 
 testPrettyPrint :: Tasty.TestTree
 testPrettyPrint = HUnit.testCase "prettyPrint" $
-    ABNF.prettyPrint Rulelist.rule @?= "rulelist = 1*(rule / (*c-wsp c-nl))"
+    prettyPrint Rulelist.rule @?= "rulelist = 1*(rule / (*c-wsp c-nl))"
 
 testParse :: Tasty.TestTree
 testParse = Tasty.testGroup "parse" $
