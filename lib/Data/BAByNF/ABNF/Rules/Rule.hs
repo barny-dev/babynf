@@ -39,4 +39,4 @@ fromTree tree =
     return $ ABNF.Rule name' definedAs' elements'
     where name = Tree.tryGetChildWithRef Rulename.ref tree <&> Rulename.fromTree
           definedAs = Tree.tryGetChildWithRef DefinedAs.ref tree >>= DefinedAs.fromTree
-          elements = Elements.fromTree tree
+          elements = Tree.tryGetChildWithRef Elements.ref tree >>= Elements.fromTree

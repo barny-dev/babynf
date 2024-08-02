@@ -5,9 +5,9 @@ module Data.BAByNF.ABNF.Rules.Option
     ) where
 
 import Data.BAByNF.Core.Tree (Tree)
-import Data.BAByNF.ABNF qualified as ABNF
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-rule :: ABNF.Rule
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Option
+ref :: Model.Rulename
+rule :: Model.Rule
+fromTree :: Tree Model.Rulename -> Either String Model.Option
 

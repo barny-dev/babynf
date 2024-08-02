@@ -9,7 +9,6 @@ import Data.List.NonEmpty (NonEmpty ((:|)))
 import Data.List.NonEmpty qualified as List.NonEmpty
 
 import Data.Attoparsec.ByteString qualified as Attoparsec
-import Debug.Trace (trace)
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.Core.Ref (Ref)
@@ -109,7 +108,7 @@ push ParserEnvironment { parserGrammar = grammar, parserContextStack = contextSt
 
 toParser' :: (Ref a, Show a) => ParserState a -> TreeParser a
 toParser' state =
-    let action = case parserFocus state_trace of
+    let action = case parserFocus state of
             Before (Unit _ p) -> Parse p
             Before (Rule ref) ->
                 let maybeP = lookupDef ref (parserEnvironment state)
@@ -138,25 +137,17 @@ toParser' state =
             OnReturn RuleContext { ruleRef = ref } tree -> Return $ Tree.singleton $ Tree.RefNode ref tree
             OnFailure AltContext { altNext = next } ->
                 case next of
-                    [] -> --trace "Panic!" $
-                         Panic "no more alts"
+                    [] -> Panic "no more alts"
                     p : next' -> Branch AltContext { altNext = next' } p
             OnFailure RepContext { repParse = _, repPrev = prev, repCount = rc } ->
                 case Repeat.state rc of
-                    Repeat.NeedMore -> -- trace "Panic!" $
-                         Panic "more repetitions required"
+                    Repeat.NeedMore -> Panic "more repetitions required"
                     _ -> Return prev
-            OnFailure _ -> --trace "Panic!" $
-                 Panic "failure in non-safeguarded context"
+            OnFailure _ -> Panic "failure in non-safeguarded context"
             After tree -> Return tree
-     in applyAction (parserEnvironment state_trace) action
-    where state_trace = trace_state state
+     in applyAction (parserEnvironment state) action
 
 lookupDef :: Ref a => a -> ParserEnvironment a -> Maybe (Parseable a)
 lookupDef ref env = lookupDef' ref (parserGrammar env)
 lookupDef' :: Ref a => a -> Dict a -> Maybe (Parseable a)
 lookupDef' ref grammar = alts $ RefDict.lookup ref grammar
-
-trace_state :: (Show a) => ParserState a -> ParserState a
--- trace_state state = trace ("\n***\n" ++ (show . parserContextStack . parserEnvironment $ state) ++ "\n===\n" ++ (show . parserFocus $ state) ++ "\n***\n" ) state
-trace_state = id

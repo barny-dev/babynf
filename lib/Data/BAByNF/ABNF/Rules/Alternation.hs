@@ -16,8 +16,6 @@ import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Rules.Concatenation qualified as Concatenation
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 
-import Debug.Trace (trace)
-
 ref :: Model.Rulename
 ref = Model.Rulename (Ascii.stringAsBytesUnsafe "alternation")
 
@@ -50,8 +48,8 @@ rule = Model.Rule ref Model.BasicDefinition
 
 fromTree :: Tree Model.Rulename -> Either String Model.Alternation
 fromTree tree = 
-    let concatTrees = Tree.getChildrenWithRef Concatenation.ref (trace (show tree) tree)
-     in trace (show concatTrees) $ mapM Concatenation.fromTree concatTrees >>=
+    let concatTrees = Tree.getChildrenWithRef Concatenation.ref tree
+     in mapM Concatenation.fromTree concatTrees >>=
             \case
                 [] -> Left "Alternation.hs: empty alt"
                 lst@(_:_) -> Right $ Model.Alternation lst

@@ -35,7 +35,6 @@ import Data.BAByNF.ABNF.Model
 toRefDict :: Rulelist -> RefDict Rulename (Parseable Rulename)
 toRefDict (Rulelist r) = RefDict (map (\(Rule ref _ (Elements a)) -> (ref, toParseable a)) r)
 
-
 class ToParseable a where
   toParseable :: a -> Parseable Rulename
 
@@ -121,7 +120,7 @@ class PrettyPrint a where
   prettyPrint :: a -> String
 
 instance PrettyPrint Rulelist where
-  prettyPrint (Rulelist x) = concatMap prettyPrint x
+  prettyPrint (Rulelist x) = concatMap ((++ "\r\n") . prettyPrint) x
 instance Show Rulelist where
   show x = "Rulelist{" ++ prettyPrint x ++ "}"
 

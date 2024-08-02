@@ -8,18 +8,24 @@ import Test.Tasty.HUnit qualified as HUnit
 
 import Data.BAByNF.Util.Ascii (stringAsBytesUnsafe)
 
+import Data.BAByNF.Util.Hex qualified as Hex
+
+import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Parse (parse)
 import Data.BAByNF.ABNF.Rules (rules)
 import Data.BAByNF.ABNF.Rules.Element qualified as Element
+import Data.BAByNF.ABNF.Model qualified as Model
+
 
 moduleUnderTest :: String
 moduleUnderTest = "Test-Data.BAByNF.ABNF.Rules.Element"
 
 testModule :: Tasty.TestTree
-testModule = Tasty.testGroup moduleUnderTest 
+testModule = Tasty.testGroup moduleUnderTest
     [ testPrettyPrint
     , testParse
+    , testParseIntoModel
     ]
 
 testPrettyPrint :: Tasty.TestTree
@@ -44,8 +50,37 @@ testParse = Tasty.testGroup "parse" $
     , "%b00000000-11111111"
     , "%b00000001.00001010.10110001"
     , "<this is prose>"
-    ] <&> \s -> HUnit.testCase (show s) $ 
-        either 
+    ] <&> \s -> HUnit.testCase (show s) $
+        either
             (\msg -> HUnit.assertFailure $ "failed to parse provided string with error: [" ++ msg ++ "]")
-            (const $ return ()) 
+            (const $ return ())
             (parse rules Element.ref (stringAsBytesUnsafe s))
+
+testParseIntoModel :: Tasty.TestTree
+testParseIntoModel = Tasty.testGroup "parseIntoModel" $
+    [ ("some-ref", Model.RulenameElement (Model.Rulename (stringAsBytesUnsafe "some-ref")))
+    , ("(one / other)", Model.GroupElement (Model.Group (Model.Alternation 
+        [ Model.Concatenation [ Model.Repetition Model.NoRepeat (Model.RulenameElement (Model.Rulename (stringAsBytesUnsafe "one")))]
+        , Model.Concatenation [Model.Repetition Model.NoRepeat (Model.RulenameElement (Model.Rulename (stringAsBytesUnsafe "other")))]
+        ])))
+    , ("[one / other]", Model.OptionElement (Model.Option (Model.Alternation 
+        [ Model.Concatenation [ Model.Repetition Model.NoRepeat (Model.RulenameElement (Model.Rulename (stringAsBytesUnsafe "one")))]
+        , Model.Concatenation [Model.Repetition Model.NoRepeat (Model.RulenameElement (Model.Rulename (stringAsBytesUnsafe "other")))]
+        ])))
+    , ("\"some text\"", Model.CharValElement (Model.CaseInsensitiveCharVal (Model.CaseInsensitiveString (Model.QuotedString (stringAsBytesUnsafe "some text")))))
+    , ("%xA0-FF", Model.NumValElement (Model.HexNumVal (Model.RangeHexVal (Hex.Seq [Hex.XA, Hex.X0]) (Hex.Seq [Hex.XF, Hex.XF]))))
+    , ("<this is prose>", Model.ProseValElement (Model.ProseVal (stringAsBytesUnsafe "this is prose")))
+    ] <&> \(s, o) -> HUnit.testCase (show s) $
+        do
+            tree <- either
+                (\msg -> HUnit.assertFailure $ "failed to parse provided string with error: [" ++ msg ++ "]")
+                return
+                (parse rules Element.ref (stringAsBytesUnsafe s))
+            subTree <- case Tree.asSingleton tree >>= Tree.getSubtreeIfRef Element.ref of
+                Nothing -> HUnit.assertFailure $ "expected Element ref node but result is tree with [" ++ show (length (Tree.nodes tree))  ++ "] children."
+                Just subTree -> return subTree
+            model <- either
+                (\msg -> HUnit.assertFailure $ "failed to parse provided string into model with error: [" ++ msg ++ "]")
+                return
+                (Element.fromTree subTree)
+            model @?= o

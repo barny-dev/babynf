@@ -4,12 +4,11 @@ import Data.Functor ((<&>))
 import Data.Char qualified as Char
 import Data.Maybe qualified as Maybe
 import Data.Word (Word8)
+import Data.List qualified as List
 
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as ByteString
 import Data.ByteString.Char8 qualified as ByteString.Char8
-
-import ASCII qualified as ASCII
 
 import Data.Attoparsec.ByteString qualified as Attoparsec.ByteString
 
@@ -142,7 +141,10 @@ bsToBinaryDigit b =
         _ -> Nothing
 
 stringAsBytesUnsafe :: String -> ByteString
-stringAsBytesUnsafe = Maybe.fromJust . ASCII.unicodeStringToByteStringMaybe
+stringAsBytesUnsafe s =
+    case List.find (not . Char.isAscii) s of
+        Just _ -> error "string contains non-ascii characters"
+        Nothing -> ByteString.Char8.pack s
 
 parseCaseInsensitive :: ByteString -> Attoparsec.ByteString.Parser ByteString
 parseCaseInsensitive b = Attoparsec.ByteString.take (ByteString.length b) 

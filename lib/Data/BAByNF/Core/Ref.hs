@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE UndecidableInstances #-}
 module Data.BAByNF.Core.Ref
     ( Ref (..)
     ) where

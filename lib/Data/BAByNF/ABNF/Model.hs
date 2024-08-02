@@ -1,7 +1,6 @@
 module Data.BAByNF.ABNF.Model where
 
 import Data.ByteString (ByteString)
-import Data.ByteString qualified as ByteString
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Util.Binary qualified as Binary
@@ -11,11 +10,11 @@ import Data.BAByNF.Util.Hex qualified as Hex
 import Data.BAByNF.Core.Ref (Ref)
 import Data.BAByNF.Core.Ref qualified as Ref
 
-newtype Rulelist = Rulelist [Rule]
+newtype Rulelist = Rulelist [Rule] deriving Eq
 
 data DefinedAs = BasicDefinition | IncrementalAlternative deriving Eq
 
-data Rule = Rule Rulename DefinedAs Elements
+data Rule = Rule Rulename DefinedAs Elements deriving Eq
 
 newtype Rulename = Rulename ByteString deriving Eq
 
@@ -23,7 +22,7 @@ instance Ref Rulename where
   eq (Rulename x) (Rulename y) = Ascii.eqNoCaseBS x y
   display (Rulename x) = show x
 
-newtype Elements = Elements Alternation
+newtype Elements = Elements Alternation deriving Eq
 newtype Alternation = Alternation [Concatenation] deriving Eq
 
 newtype Concatenation = Concatenation [Repetition] deriving Eq

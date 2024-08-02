@@ -1,5 +1,7 @@
 module Data.BAByNF.Util.List where
 
+
+
 drainOnce :: [a] -> [a] -> ([a], [a])
 drainOnce from to =
     case from of

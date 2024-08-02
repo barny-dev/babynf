@@ -82,5 +82,5 @@ fromTree tree =
           tryToInteger bs =
               case ByteString.Char8.readInteger bs of
                   Nothing -> Left "not integer"
-                  Just (no, rest) | ByteString.null rest  -> Left "more than an integer read"
-                                  | otherwise -> Right no
+                  Just (no, rest) | ByteString.null rest  -> Right no
+                                  | otherwise -> Left "more than an integer read"
