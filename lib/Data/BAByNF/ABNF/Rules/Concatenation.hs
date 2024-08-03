@@ -12,36 +12,36 @@ import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Rules.Repetition qualified as Repetition
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "concatenation")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "concatenation")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition $ ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     $ 
-        [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Repetition.ref)
-        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) 
-            . ABNF.GroupElement
-            . ABNF.Group
-            . ABNF.Alternation
+        [ Model.Repetition Model.NoRepeat (Model.RulenameElement Repetition.ref)
+        , Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound) 
+            . Model.GroupElement
+            . Model.Group
+            . Model.Alternation
             . List.singleton
-            . ABNF.Concatenation
+            . Model.Concatenation
             $
-                [ ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement CWsp.ref) 
-                , ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Repetition.ref)
+                [ Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement CWsp.ref) 
+                , Model.Repetition Model.NoRepeat (Model.RulenameElement Repetition.ref)
                 ]
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Concatenation
+fromTree :: Tree Model.Rulename -> Either String Model.Concatenation
 fromTree tree = mapM Repetition.fromTree 
     ( 
         Tree.getChildrenWithRef Repetition.ref tree
     ) >>= \case 
         [] -> Left "empty concat"
-        x -> Right $ ABNF.Concatenation x
+        x -> Right $ Model.Concatenation x

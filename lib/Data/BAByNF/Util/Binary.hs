@@ -1,4 +1,11 @@
-module Data.BAByNF.Util.Binary where
+module Data.BAByNF.Util.Binary
+    ( Digit (..)
+    , Seq (..)
+    , val
+    , toNum
+    , fromVal
+    , toChar
+    ) where
 
 data Digit = B0 | B1 deriving (Eq, Ord)
 newtype Seq = Seq [Digit] deriving Eq

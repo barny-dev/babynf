@@ -11,7 +11,6 @@ import Data.BAByNF.Core.Ref qualified as Ref
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.ABNF.Parse (parseRulelist, parse)
-import Data.Either (isRight)
 import Data.BAByNF.ABNF.Model qualified as Model
 import Data.BAByNF.ABNF.Core qualified as Core
 
@@ -52,7 +51,7 @@ testParseRulelist = HUnit.testCase "parseRulelist" $
             \ehlo-line = ehlo-keyword *( SP ehlo-param )\r\n\
             \ehlo-keyword = (ALPHA / DIGIT) *(ALPHA / DIGIT / \"-\")\r\n\
             \ehlo-param = 1*(%d33-126)\r\n"
-          withCore (Model.Rulelist rules) = Model.Rulelist (rules ++ Core.rules)
+          withCore (Model.Rulelist r) = Model.Rulelist (r ++ Core.rules)
           expectString s l =
             let expected = stringNode s
              in case l of

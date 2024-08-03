@@ -15,60 +15,58 @@ import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.Util.Stream qualified as Stream
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Core.Ref qualified as Ref
+import Data.BAByNF.ABNF.Model qualified as Model
 
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "repeat")
 
-
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "repeat")
-
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition
-    . ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition
+    . Model.Elements
+    . Model.Alternation
     $ 
-        [ ABNF.Concatenation
+        [ Model.Concatenation
             . List.singleton
-            . ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound)
-            $ ABNF.RulenameElement Core.digitRef 
-        , ABNF.Concatenation
+            . Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound)
+            $ Model.RulenameElement Core.digitRef 
+        , Model.Concatenation
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.GroupElement
-            . ABNF.Group
-            . ABNF.Alternation
+            . Model.Repetition Model.NoRepeat
+            . Model.GroupElement
+            . Model.Group
+            . Model.Alternation
             . List.singleton
-            . ABNF.Concatenation
+            . Model.Concatenation
             $  
-                [ ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound)
-                    $ ABNF.RulenameElement Core.digitRef
-                , ABNF.Repetition ABNF.NoRepeat
-                    . ABNF.CharValElement 
-                    . ABNF.CaseInsensitiveCharVal
-                    . ABNF.CaseInsensitiveString
-                    . ABNF.QuotedString
+                [ Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound)
+                    $ Model.RulenameElement Core.digitRef
+                , Model.Repetition Model.NoRepeat
+                    . Model.CharValElement 
+                    . Model.CaseInsensitiveCharVal
+                    . Model.CaseInsensitiveString
+                    . Model.QuotedString
                     $ Ascii.stringAsBytesUnsafe "*"
-                , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound)
-                    $ ABNF.RulenameElement Core.digitRef 
+                , Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound)
+                    $ Model.RulenameElement Core.digitRef 
                 ]
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Repeat
+fromTree :: Tree Model.Rulename -> Either String Model.Repeat
 fromTree tree =
     let stream = do
             mnOpt <- takeDigits
             hasStar <- Stream.take <&> Maybe.isJust
             mxOpt <- if hasStar then takeDigits else return Nothing
             case (mnOpt, hasStar, mxOpt) of
-                (Just mns, False, _) -> return $ tryToInteger mns >>= \mn -> return $ ABNF.FixedRepeat mn
+                (Just mns, False, _) -> return $ tryToInteger mns >>= \mn -> return $ Model.FixedRepeat mn
                 (_, True, _) -> return $
-                    let toBound = Maybe.maybe (Right ABNF.UnBound) (\x -> tryToInteger x >>= return . ABNF.FixedBound)
+                    let toBound = Maybe.maybe (Right Model.UnBound) (\x -> tryToInteger x >>= return . Model.FixedBound)
                      in do 
                         lo <- toBound mnOpt
                         hi <- toBound mxOpt
-                        Right (ABNF.RangedRepeat lo hi)
+                        Right (Model.RangedRepeat lo hi)
                 _ -> return $ Left "structural mismatch for <repeat>"
      in Stream.runStream_ stream (Tree.nodes tree)
     where takeDigits = Stream.takeWhileMap (\e ->

@@ -16,70 +16,69 @@ import Data.BAByNF.Util.Stream qualified as Stream
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.Util.Decimal qualified as Decimal
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "dec-val")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "dec-val")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     $
-        [ ABNF.Repetition ABNF.NoRepeat
-            . ABNF.CharValElement
-            . ABNF.CaseInsensitiveCharVal
-            . ABNF.CaseInsensitiveString
-            . ABNF.QuotedString
+        [ Model.Repetition Model.NoRepeat
+            . Model.CharValElement
+            . Model.CaseInsensitiveCharVal
+            . Model.CaseInsensitiveString
+            . Model.QuotedString
             $ Ascii.stringAsBytesUnsafe "d"
-        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.digitRef)
-        , ABNF.Repetition ABNF.NoRepeat
-            $ ABNF.OptionElement
-            . ABNF.Option
-            . ABNF.Alternation
+        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.digitRef)
+        , Model.Repetition Model.NoRepeat
+            $ Model.OptionElement
+            . Model.Option
+            . Model.Alternation
             $
-                [ ABNF.Concatenation
+                [ Model.Concatenation
                     . List.singleton
-                    . ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound)
-                    . ABNF.GroupElement
-                    . ABNF.Group
-                    . ABNF.Alternation
+                    . Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound)
+                    . Model.GroupElement
+                    . Model.Group
+                    . Model.Alternation
                     . List.singleton
-                    . ABNF.Concatenation
+                    . Model.Concatenation
                     $
-                        [ ABNF.Repetition ABNF.NoRepeat . ABNF.CharValElement
-                            . ABNF.CaseInsensitiveCharVal
-                            . ABNF.CaseInsensitiveString
-                            . ABNF.QuotedString
+                        [ Model.Repetition Model.NoRepeat . Model.CharValElement
+                            . Model.CaseInsensitiveCharVal
+                            . Model.CaseInsensitiveString
+                            . Model.QuotedString
                             $ Ascii.stringAsBytesUnsafe "."
-                        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.digitRef)
+                        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.digitRef)
                         ]
-                , ABNF.Concatenation
+                , Model.Concatenation
                     . List.singleton
-                    . ABNF.Repetition ABNF.NoRepeat
-                    . ABNF.GroupElement
-                    . ABNF.Group
-                    . ABNF.Alternation
+                    . Model.Repetition Model.NoRepeat
+                    . Model.GroupElement
+                    . Model.Group
+                    . Model.Alternation
                     . List.singleton
-                    . ABNF.Concatenation
+                    . Model.Concatenation
                     $
-                        [ ABNF.Repetition ABNF.NoRepeat . ABNF.CharValElement
-                            . ABNF.CaseInsensitiveCharVal
-                            . ABNF.CaseInsensitiveString
-                            . ABNF.QuotedString
+                        [ Model.Repetition Model.NoRepeat . Model.CharValElement
+                            . Model.CaseInsensitiveCharVal
+                            . Model.CaseInsensitiveString
+                            . Model.QuotedString
                             $ Ascii.stringAsBytesUnsafe "-"
-                        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.digitRef)
+                        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.digitRef)
                         ]
                 ]
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.DecVal
+fromTree :: Tree Model.Rulename -> Either String Model.DecVal
 fromTree tree = Stream.runStream_ stream (Tree.nodes tree)
-    where stream :: Stream (Tree.Node ABNF.Rulename) (Either String ABNF.DecVal)
+    where stream :: Stream (Tree.Node Model.Rulename) (Either String Model.DecVal)
           stream = expectD `Stream.propagate'`
                    takeByteOrLeft `Stream.propagate`
                    (\firstByte -> Stream.peek >>=
@@ -87,12 +86,12 @@ fromTree tree = Stream.runStream_ stream (Tree.nodes tree)
                             Nothing -> return . Right . singleByte $ firstByte
                             Just (Tree.StringNode s)
                                 | s == Ascii.bs '-' ->
-                                    dashDecimals <&> (<&> ABNF.RangeDecVal firstByte)
+                                    dashDecimals <&> (<&> Model.RangeDecVal firstByte)
                                 | s == Ascii.bs '.' ->
                                     exhaust dotDecimals [] <&>
                                     fmap (\byteRest ->
                                             let bytes = firstByte : byteRest
-                                             in ABNF.SeqDecVal bytes
+                                             in Model.SeqDecVal bytes
                                          )
                                 | otherwise -> return (Left "unexpected char")
                             _ -> return (Left "dec-num pattern not matched")
@@ -112,4 +111,4 @@ fromTree tree = Stream.runStream_ stream (Tree.nodes tree)
           exhaust m acc = Stream.hasNext >>= \cond -> if cond
                                 then m `Stream.propagate` (\e -> exhaust m (e:acc))
                                 else return (Right (reverse acc))
-          singleByte = ABNF.SeqDecVal . List.singleton
+          singleByte = Model.SeqDecVal . List.singleton

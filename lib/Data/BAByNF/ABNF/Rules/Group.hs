@@ -9,7 +9,6 @@ import Data.Functor ((<&>))
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.Util.List qualified as Util.List
 
 import Data.BAByNF.Core.Ref qualified as Ref
 import Data.BAByNF.Core.Tree (Tree)

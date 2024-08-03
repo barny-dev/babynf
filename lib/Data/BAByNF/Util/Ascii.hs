@@ -1,4 +1,31 @@
-module Data.BAByNF.Util.Ascii where
+module Data.BAByNF.Util.Ascii
+    ( lowerAlphaFirst
+    , lowerAlphaLast
+    , upperAlphaFirst
+    , upperAlphaLast
+    , rangedCompare
+    , AlphaClass (..)
+    , classifyAlpha
+    , lowerToUpperUnsafe
+    , lowerToUpper
+    , eqNoCase
+    , eqNoCaseSeq
+    , eqNoCaseBS
+    , fromChar
+    , fromCharOrNull
+    , bs
+    , parseHex
+    , toHexDigit
+    , bsToHexDigit
+    , toHexSeq
+    , toDecimalDigit
+    , bsToDecimalDigit
+    , toBinaryDigit
+    , bsToBinaryDigit
+    , stringAsBytesUnsafe
+    , parseCaseInsensitive
+    , parseCaseSensitive
+    ) where
 
 import Data.Functor ((<&>))
 import Data.Char qualified as Char

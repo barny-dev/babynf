@@ -14,7 +14,6 @@ import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Model qualified as Model
 
 ref :: Model.Rulename

@@ -1,4 +1,11 @@
-module Data.BAByNF.Util.Hex where
+module Data.BAByNF.Util.Hex
+    ( Digit (..)
+    , Seq (..)
+    , val
+    , toNum
+    , fromVal
+    , toChar
+    ) where
 
 data Digit
     = X0

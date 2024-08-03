@@ -1,4 +1,10 @@
-module Data.BAByNF.Core.RefDict where
+module Data.BAByNF.Core.RefDict
+    ( RefDict (..)
+    , lookup
+    , lookup1
+    ) where
+
+import Prelude hiding (lookup)
 
 import Data.BAByNF.Core.Ref (Ref)
 import Data.BAByNF.Core.Ref qualified as Ref

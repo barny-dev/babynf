@@ -2,6 +2,7 @@
 module Data.BAByNF.Util.Stream where
 import Data.Bifunctor qualified as Bifunctor
 import Data.Maybe (isJust, isNothing)
+import Control.Applicative (liftA2)
 import Control.Monad (when)
 import Prelude hiding (take, drop, takeWhile, dropWhile)
 import Data.Kind (Type)

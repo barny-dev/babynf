@@ -12,25 +12,23 @@ import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.ABNF.Rules.Alternation qualified as Alternation
 import Data.BAByNF.ABNF.Rules.CWsp qualified as CWsp
+import Data.BAByNF.ABNF.Model qualified as Model
 
-import Data.BAByNF.ABNF qualified as ABNF
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "elements")
 
-
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "elements")
-
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition 
-    . ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition 
+    . Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     $ 
-        [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Alternation.ref)
-        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) (ABNF.RulenameElement CWsp.ref)
+        [ Model.Repetition Model.NoRepeat (Model.RulenameElement Alternation.ref)
+        , Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound) (Model.RulenameElement CWsp.ref)
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Elements
-fromTree tree = Tree.tryGetChildWithRef Alternation.ref tree >>= Alternation.fromTree <&> ABNF.Elements
+fromTree :: Tree Model.Rulename -> Either String Model.Elements
+fromTree tree = Tree.tryGetChildWithRef Alternation.ref tree >>= Alternation.fromTree <&> Model.Elements
 
 

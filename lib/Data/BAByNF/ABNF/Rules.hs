@@ -1,8 +1,8 @@
-module Data.BAByNF.ABNF.Rules where
+module Data.BAByNF.ABNF.Rules
+    ( rules
+    ) where
 
-import Data.BAByNF.Core.RefDict (RefDict (..))
 import Data.BAByNF.ABNF.Core qualified as Core
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Rules.Option qualified as Option
 import Data.BAByNF.ABNF.Rules.CharVal qualified as CharVal
 import Data.BAByNF.ABNF.Rules.NumVal qualified as NumVal
@@ -27,10 +27,11 @@ import Data.BAByNF.ABNF.Rules.Rulelist qualified as Rulelist
 import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitiveString
 import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
 import Data.BAByNF.ABNF.Rules.QuotedString qualified as QuotedString
+import Data.BAByNF.ABNF.Model qualified as Model
 
 -- todo: move out core rules to opt-in abnf parser configuration element
-rules :: ABNF.Rulelist
-rules = ABNF.Rulelist $ Core.rules ++
+rules :: Model.Rulelist
+rules = Model.Rulelist $ Core.rules ++
             [ Rulelist.rule
             , Rule.rule
             , Rulename.rule

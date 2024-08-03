@@ -1,13 +1,47 @@
-module Data.BAByNF.ABNF.Core where
+module Data.BAByNF.ABNF.Core
+    ( rules
+    , ruleRefs
+    , alphaRef
+    , alphaRule
+    , bitRef
+    , bitRule
+    , charRef
+    , charRule
+    , crRef
+    , crRule
+    , crlfRef
+    , crlfRule
+    , ctlRef
+    , ctlRule
+    , digitRef
+    , digitRule
+    , dquoteRef
+    , dquoteRule
+    , hexdigRef
+    , hexdigRule
+    , htabRef
+    , htabRule
+    , lfRef
+    , lfRule
+    , lwspRef
+    , lwspRule
+    , octetRef
+    , octetRule
+    , spRef
+    , spRule
+    , vcharRef
+    , vcharRule
+    , wspRef
+    , wspRule
+    ) where
 
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Util.Hex qualified as Hex
+import Data.BAByNF.ABNF.Model qualified as Model
 
-import Data.BAByNF.ABNF qualified as ABNF
-
-rules :: [ABNF.Rule]
+rules :: [Model.Rule]
 rules =
     [ alphaRule
     , bitRule
@@ -27,327 +61,327 @@ rules =
     , wspRule
     ]
 
-ruleRefs :: [ABNF.Rulename]
-ruleRefs = map (\(ABNF.Rule r _ _) -> r) rules
+ruleRefs :: [Model.Rulename]
+ruleRefs = map (\(Model.Rule r _ _) -> r) rules
 
-alphaRef :: ABNF.Rulename
-alphaRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "ALPHA")
+alphaRef :: Model.Rulename
+alphaRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "ALPHA")
 
-alphaRule :: ABNF.Rule
-alphaRule = ABNF.Rule alphaRef ABNF.BasicDefinition .
-    ABNF.Elements . ABNF.Alternation $ 
-        [ ABNF.Concatenation 
+alphaRule :: Model.Rule
+alphaRule = Model.Rule alphaRef Model.BasicDefinition .
+    Model.Elements . Model.Alternation $ 
+        [ Model.Concatenation 
             . List.singleton 
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.NumValElement 
-            . ABNF.HexNumVal 
-            $ ABNF.RangeHexVal (Hex.Seq [Hex.X4, Hex.X1]) (Hex.Seq [Hex.X5, Hex.XA])
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            . Model.NumValElement 
+            . Model.HexNumVal 
+            $ Model.RangeHexVal (Hex.Seq [Hex.X4, Hex.X1]) (Hex.Seq [Hex.X5, Hex.XA])
+        , Model.Concatenation 
             . List.singleton 
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.NumValElement 
-            . ABNF.HexNumVal 
-            $ ABNF.RangeHexVal (Hex.Seq [Hex.X6, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XA])
+            . Model.Repetition Model.NoRepeat
+            . Model.NumValElement 
+            . Model.HexNumVal 
+            $ Model.RangeHexVal (Hex.Seq [Hex.X6, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XA])
         ]
 
-bitRef :: ABNF.Rulename
-bitRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "BIT")
+bitRef :: Model.Rulename
+bitRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "BIT")
 
-bitRule :: ABNF.Rule
-bitRule = ABNF.Rule bitRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    $ ABNF.Alternation
-        [ ABNF.Concatenation 
+bitRule :: Model.Rule
+bitRule = Model.Rule bitRef Model.BasicDefinition
+    $ Model.Elements
+    $ Model.Alternation
+        [ Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs '0'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs '1'
         ]
 
-charRef :: ABNF.Rulename
-charRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CHAR")
+charRef :: Model.Rulename
+charRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "CHAR")
 
-charRule :: ABNF.Rule
-charRule = ABNF.Rule charRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+charRule :: Model.Rule
+charRule = Model.Rule charRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XF])
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.RangeHexVal (Hex.Seq [Hex.X0, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XF])
 
-crRef :: ABNF.Rulename
-crRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CR")
+crRef :: Model.Rulename
+crRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "CR")
 
-crRule :: ABNF.Rule
-crRule = ABNF.Rule crRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+crRule :: Model.Rule
+crRule = Model.Rule crRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.XD]]
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.SeqHexVal [Hex.Seq [Hex.X0, Hex.XD]]
 
-crlfRef :: ABNF.Rulename
-crlfRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CRLF")
+crlfRef :: Model.Rulename
+crlfRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "CRLF")
 
-crlfRule :: ABNF.Rule
-crlfRule = ABNF.Rule crlfRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+crlfRule :: Model.Rule
+crlfRule = Model.Rule crlfRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    $ ABNF.Concatenation 
-        [ ABNF.Repetition ABNF.NoRepeat
-            $ ABNF.RulenameElement crRef
-        , ABNF.Repetition ABNF.NoRepeat
-            $ ABNF.RulenameElement lfRef
+    $ Model.Concatenation 
+        [ Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement crRef
+        , Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement lfRef
         ]
 
-ctlRef :: ABNF.Rulename
-ctlRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "CTL")
+ctlRef :: Model.Rulename
+ctlRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "CTL")
 
-ctlRule :: ABNF.Rule
-ctlRule = ABNF.Rule ctlRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    $ ABNF.Alternation
-        [ ABNF.Concatenation 
+ctlRule :: Model.Rule
+ctlRule = Model.Rule ctlRef Model.BasicDefinition
+    $ Model.Elements
+    $ Model.Alternation
+        [ Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.NumValElement
-            . ABNF.HexNumVal
-            $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.X1, Hex.XF])
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            . Model.NumValElement
+            . Model.HexNumVal
+            $ Model.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.X1, Hex.XF])
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.NumValElement
-            . ABNF.HexNumVal
-            $ ABNF.SeqHexVal [Hex.Seq [Hex.X7, Hex.XF]]
+            . Model.Repetition Model.NoRepeat
+            . Model.NumValElement
+            . Model.HexNumVal
+            $ Model.SeqHexVal [Hex.Seq [Hex.X7, Hex.XF]]
         ]
 
-digitRef :: ABNF.Rulename
-digitRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "DIGIT")
+digitRef :: Model.Rulename
+digitRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "DIGIT")
 
-digitRule :: ABNF.Rule
-digitRule = ABNF.Rule digitRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+digitRule :: Model.Rule
+digitRule = Model.Rule digitRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.RangeHexVal (Hex.Seq [Hex.X3, Hex.X0]) (Hex.Seq [Hex.X3, Hex.X9])
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.RangeHexVal (Hex.Seq [Hex.X3, Hex.X0]) (Hex.Seq [Hex.X3, Hex.X9])
 
-dquoteRef :: ABNF.Rulename
-dquoteRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "DQUOTE")
+dquoteRef :: Model.Rulename
+dquoteRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "DQUOTE")
 
-dquoteRule :: ABNF.Rule
-dquoteRule = ABNF.Rule dquoteRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+dquoteRule :: Model.Rule
+dquoteRule = Model.Rule dquoteRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.SeqHexVal [Hex.Seq [Hex.X2, Hex.X2]]
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.SeqHexVal [Hex.Seq [Hex.X2, Hex.X2]]
 
-hexdigRef :: ABNF.Rulename
-hexdigRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "HEXDIG")
+hexdigRef :: Model.Rulename
+hexdigRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "HEXDIG")
 
-hexdigRule :: ABNF.Rule
-hexdigRule = ABNF.Rule hexdigRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    $ ABNF.Alternation
-        [ ABNF.Concatenation 
+hexdigRule :: Model.Rule
+hexdigRule = Model.Rule hexdigRef Model.BasicDefinition
+    $ Model.Elements
+    $ Model.Alternation
+        [ Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement digitRef
-        , ABNF.Concatenation 
+                . Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement digitRef
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'A'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'B'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'C'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'D'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'E'
-        , ABNF.Concatenation 
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                . ABNF.CharValElement
-                . ABNF.CaseInsensitiveCharVal
-                . ABNF.CaseInsensitiveString
-                . ABNF.QuotedString
+                . Model.Repetition Model.NoRepeat
+                . Model.CharValElement
+                . Model.CaseInsensitiveCharVal
+                . Model.CaseInsensitiveString
+                . Model.QuotedString
                 $ Ascii.bs 'F'
         ]
 
-htabRef :: ABNF.Rulename
-htabRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "HTAB")
+htabRef :: Model.Rulename
+htabRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "HTAB")
 
-htabRule :: ABNF.Rule
-htabRule = ABNF.Rule htabRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+htabRule :: Model.Rule
+htabRule = Model.Rule htabRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.X9]]
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.SeqHexVal [Hex.Seq [Hex.X0, Hex.X9]]
 
-lfRef :: ABNF.Rulename
-lfRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "LF")
+lfRef :: Model.Rulename
+lfRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "LF")
 
-lfRule :: ABNF.Rule
-lfRule = ABNF.Rule lfRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+lfRule :: Model.Rule
+lfRule = Model.Rule lfRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.SeqHexVal [Hex.Seq [Hex.X0, Hex.XA]]
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.SeqHexVal [Hex.Seq [Hex.X0, Hex.XA]]
 
-lwspRef :: ABNF.Rulename
-lwspRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "LWSP")
+lwspRef :: Model.Rulename
+lwspRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "LWSP")
 
-lwspRule :: ABNF.Rule
-lwspRule = ABNF.Rule lwspRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+lwspRule :: Model.Rule
+lwspRule = Model.Rule lwspRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound)
-    . ABNF.GroupElement
-    . ABNF.Group
-    $ ABNF.Alternation
-        [ ABNF.Concatenation 
+    . Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound)
+    . Model.GroupElement
+    . Model.Group
+    $ Model.Alternation
+        [ Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement wspRef
-        , ABNF.Concatenation
-            [ ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement crlfRef
-            , ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement wspRef
+                . Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement wspRef
+        , Model.Concatenation
+            [ Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement crlfRef
+            , Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement wspRef
             ]
         ]
     
 
-octetRef :: ABNF.Rulename
-octetRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "OCTET")
+octetRef :: Model.Rulename
+octetRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "OCTET")
 
-octetRule :: ABNF.Rule
-octetRule = ABNF.Rule octetRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+octetRule :: Model.Rule
+octetRule = Model.Rule octetRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.XF, Hex.XF])
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.RangeHexVal (Hex.Seq [Hex.X0, Hex.X0]) (Hex.Seq [Hex.XF, Hex.XF])
 
-spRef :: ABNF.Rulename
-spRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "SP")
+spRef :: Model.Rulename
+spRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "SP")
 
-spRule :: ABNF.Rule
-spRule = ABNF.Rule spRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+spRule :: Model.Rule
+spRule = Model.Rule spRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.SeqHexVal [Hex.Seq [Hex.X2, Hex.X0]]
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.SeqHexVal [Hex.Seq [Hex.X2, Hex.X0]]
 
-vcharRef :: ABNF.Rulename
-vcharRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "VCHAR")
+vcharRef :: Model.Rulename
+vcharRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "VCHAR")
 
-vcharRule :: ABNF.Rule
-vcharRule = ABNF.Rule vcharRef ABNF.BasicDefinition
-    $ ABNF.Elements
-    . ABNF.Alternation
+vcharRule :: Model.Rule
+vcharRule = Model.Rule vcharRef Model.BasicDefinition
+    $ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     . List.singleton
-    . ABNF.Repetition ABNF.NoRepeat
-    . ABNF.NumValElement
-    . ABNF.HexNumVal
-    $ ABNF.RangeHexVal (Hex.Seq [Hex.X2, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XE])
+    . Model.Repetition Model.NoRepeat
+    . Model.NumValElement
+    . Model.HexNumVal
+    $ Model.RangeHexVal (Hex.Seq [Hex.X2, Hex.X1]) (Hex.Seq [Hex.X7, Hex.XE])
 
 
-wspRef :: ABNF.Rulename
-wspRef = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "WSP")
+wspRef :: Model.Rulename
+wspRef = Model.Rulename (Ascii.stringAsBytesUnsafe  "WSP")
 
-wspRule :: ABNF.Rule
-wspRule = ABNF.Rule wspRef ABNF.BasicDefinition
-        $ ABNF.Elements
-    $ ABNF.Alternation
-        [ ABNF.Concatenation 
+wspRule :: Model.Rule
+wspRule = Model.Rule wspRef Model.BasicDefinition
+        $ Model.Elements
+    $ Model.Alternation
+        [ Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement spRef
-        , ABNF.Concatenation 
+                . Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement spRef
+        , Model.Concatenation 
                 . List.singleton 
-                . ABNF.Repetition ABNF.NoRepeat
-                $ ABNF.RulenameElement htabRef
+                . Model.Repetition Model.NoRepeat
+                $ Model.RulenameElement htabRef
         ]

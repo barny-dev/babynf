@@ -15,28 +15,26 @@ import Data.BAByNF.ABNF.Rules.Rulename qualified as Rulename
 import Data.BAByNF.ABNF.Rules.DefinedAs qualified as DefinedAs
 import Data.BAByNF.ABNF.Rules.Elements qualified as Elements
 import Data.BAByNF.ABNF.Rules.CNl qualified as CNl
+import Data.BAByNF.ABNF.Model qualified as Model
 
-import Data.BAByNF.ABNF qualified as ABNF
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "rule")
 
-
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "rule")
-
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition $
-    ABNF.Elements . ABNF.Alternation  . List.singleton . ABNF.Concatenation $
-        [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Rulename.ref)
-        , ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement DefinedAs.ref)
-        , ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Elements.ref)
-        , ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement CNl.ref)
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition $
+    Model.Elements . Model.Alternation  . List.singleton . Model.Concatenation $
+        [ Model.Repetition Model.NoRepeat (Model.RulenameElement Rulename.ref)
+        , Model.Repetition Model.NoRepeat (Model.RulenameElement DefinedAs.ref)
+        , Model.Repetition Model.NoRepeat (Model.RulenameElement Elements.ref)
+        , Model.Repetition Model.NoRepeat (Model.RulenameElement CNl.ref)
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Rule
+fromTree :: Tree Model.Rulename -> Either String Model.Rule
 fromTree tree =
     name >>= \name' ->
     definedAs >>= \definedAs' ->
     elements >>= \elements' ->
-    return $ ABNF.Rule name' definedAs' elements'
+    return $ Model.Rule name' definedAs' elements'
     where name = Tree.tryGetChildWithRef Rulename.ref tree <&> Rulename.fromTree
           definedAs = Tree.tryGetChildWithRef DefinedAs.ref tree >>= DefinedAs.fromTree
           elements = Tree.tryGetChildWithRef Elements.ref tree >>= Elements.fromTree

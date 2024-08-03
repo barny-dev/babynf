@@ -13,72 +13,71 @@ import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
 import Data.BAByNF.Util.Ascii qualified as Ascii
-import Data.BAByNF.ABNF qualified as ABNF
-import Data.List (uncons)
 import Data.BAByNF.Util.List qualified as Util.List
 import Data.BAByNF.Util.Hex qualified as Hex
+import Data.BAByNF.ABNF.Model qualified as Model
 
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "hex-val")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "hex-val")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition$ ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition$ Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     $
-        [ ABNF.Repetition ABNF.NoRepeat
-            . ABNF.CharValElement
-            . ABNF.CaseInsensitiveCharVal
-            . ABNF.CaseInsensitiveString
-            . ABNF.QuotedString
+        [ Model.Repetition Model.NoRepeat
+            . Model.CharValElement
+            . Model.CaseInsensitiveCharVal
+            . Model.CaseInsensitiveString
+            . Model.QuotedString
             $ Ascii.stringAsBytesUnsafe "x"
-        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.hexdigRef)
-        , ABNF.Repetition ABNF.NoRepeat
-            $ ABNF.OptionElement
-            . ABNF.Option
-            . ABNF.Alternation
+        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.hexdigRef)
+        , Model.Repetition Model.NoRepeat
+            $ Model.OptionElement
+            . Model.Option
+            . Model.Alternation
             $
-                [ ABNF.Concatenation
+                [ Model.Concatenation
                     . List.singleton
-                    . ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound)
-                    . ABNF.GroupElement
-                    . ABNF.Group
-                    . ABNF.Alternation
+                    . Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound)
+                    . Model.GroupElement
+                    . Model.Group
+                    . Model.Alternation
                     . List.singleton
-                    . ABNF.Concatenation
+                    . Model.Concatenation
                     $
-                        [ ABNF.Repetition ABNF.NoRepeat . ABNF.CharValElement
-                            . ABNF.CaseInsensitiveCharVal
-                            . ABNF.CaseInsensitiveString
-                            . ABNF.QuotedString
+                        [ Model.Repetition Model.NoRepeat . Model.CharValElement
+                            . Model.CaseInsensitiveCharVal
+                            . Model.CaseInsensitiveString
+                            . Model.QuotedString
                             $ Ascii.stringAsBytesUnsafe "."
-                        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.hexdigRef)
+                        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.hexdigRef)
                         ]
-                , ABNF.Concatenation
+                , Model.Concatenation
                     . List.singleton
-                    . ABNF.Repetition ABNF.NoRepeat
-                    . ABNF.GroupElement
-                    . ABNF.Group
-                    . ABNF.Alternation
+                    . Model.Repetition Model.NoRepeat
+                    . Model.GroupElement
+                    . Model.Group
+                    . Model.Alternation
                     . List.singleton
-                    . ABNF.Concatenation
+                    . Model.Concatenation
                     $
-                        [ ABNF.Repetition ABNF.NoRepeat . ABNF.CharValElement
-                            . ABNF.CaseInsensitiveCharVal
-                            . ABNF.CaseInsensitiveString
-                            . ABNF.QuotedString
+                        [ Model.Repetition Model.NoRepeat . Model.CharValElement
+                            . Model.CaseInsensitiveCharVal
+                            . Model.CaseInsensitiveString
+                            . Model.QuotedString
                             $ Ascii.stringAsBytesUnsafe "-"
-                        , ABNF.Repetition (ABNF.RangedRepeat (ABNF.FixedBound 1) ABNF.UnBound) (ABNF.RulenameElement Core.hexdigRef)
+                        , Model.Repetition (Model.RangedRepeat (Model.FixedBound 1) Model.UnBound) (Model.RulenameElement Core.hexdigRef)
                         ]
                 ]
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.HexVal
+fromTree :: Tree Model.Rulename -> Either String Model.HexVal
 fromTree tree = 
     let nodes = Tree.nodes tree
-     in (case uncons nodes of
+     in (case List.uncons nodes of
         Just (h, rest) -> 
             if isB h
                 then Right rest
@@ -86,20 +85,20 @@ fromTree tree =
         _ -> Left "structural mismatch for <hex-val>")
         >>= takeHexSeq
         >>= \(firstSeq, rest) -> 
-            case uncons rest of
-                Nothing -> Right (ABNF.SeqHexVal [firstSeq])
+            case List.uncons rest of
+                Nothing -> Right (Model.SeqHexVal [firstSeq])
                 Just (c, rest') | isDash c -> takeHexSeq rest' >>= \(secondSeq, end) -> 
                                         case end of 
-                                            [] -> Right (ABNF.RangeHexVal firstSeq secondSeq)
+                                            [] -> Right (Model.RangeHexVal firstSeq secondSeq)
                                             _ -> Left "structural mismatch for <hex-val>"
                                 | isDot c -> let takeSeq x = takeHexSeq x >>= (\(nextSeq, rest'') -> case rest'' of
                                                     [] -> Right [nextSeq]
                                                     c':rest''' -> if isDot c' 
                                                                     then takeSeq rest''' >>= \seqs -> Right (nextSeq : seqs)
                                                                     else Left "structural mismatch for <hex-val>")
-                                              in takeSeq rest' >>= \seqs -> Right (ABNF.SeqHexVal $ firstSeq : seqs)
+                                              in takeSeq rest' >>= \seqs -> Right (Model.SeqHexVal $ firstSeq : seqs)
                                 | otherwise -> Left "structural mismatch for <hex-val>"
-    where takeHexSeq :: [Tree.Node ABNF.Rulename] -> Either String (Hex.Seq, [Tree.Node ABNF.Rulename])
+    where takeHexSeq :: [Tree.Node Model.Rulename] -> Either String (Hex.Seq, [Tree.Node Model.Rulename])
           takeHexSeq nodes = case Util.List.lsplitWhenNot nodes isHexDig  of 
                 (hexno@(_:_), rest) -> 
                     case Ascii.toHexSeq $ ByteString.concat (map Tree.stringifyNode hexno) of

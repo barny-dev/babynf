@@ -7,17 +7,17 @@ import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
 
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Core qualified as Core
 import Data.BAByNF.ABNF.Rules.Comment qualified as Comment
+import Data.BAByNF.ABNF.Model qualified as Model
 
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "c-nl")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "c-nl")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition $
-    ABNF.Elements . ABNF.Alternation $
-        [ ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat . ABNF.RulenameElement $ Comment.ref
-        , ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat . ABNF.RulenameElement $ Core.crlfRef
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition $
+    Model.Elements . Model.Alternation $
+        [ Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat . Model.RulenameElement $ Comment.ref
+        , Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat . Model.RulenameElement $ Core.crlfRef
         ]

@@ -15,29 +15,28 @@ import Data.List qualified as List
 import Control.Applicative ((<|>))
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Rules.CaseInsensitiveString qualified as CaseInsensitiveString
 import Data.BAByNF.ABNF.Rules.CaseSensitiveString qualified as CaseSensitiveString
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "char-val")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "char-val")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition
-    . ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition
+    . Model.Elements
+    . Model.Alternation
     $
-        [ ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat $ ABNF.RulenameElement CaseInsensitiveString.ref
-        , ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat $ ABNF.RulenameElement CaseSensitiveString.ref
+        [ Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat $ Model.RulenameElement CaseInsensitiveString.ref
+        , Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat $ Model.RulenameElement CaseSensitiveString.ref
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.CharVal
+fromTree :: Tree Model.Rulename -> Either String Model.CharVal
 fromTree tree =
     fromMaybe (Left "no string") $ tryGetInsensitive tree <|> tryGetSensitive tree
     where tryGetInsensitive t = do
             subtree <- Tree.getChildWithRef CaseInsensitiveString.ref t
-            return $ CaseInsensitiveString.fromTree subtree <&> ABNF.CaseInsensitiveCharVal
+            return $ CaseInsensitiveString.fromTree subtree <&> Model.CaseInsensitiveCharVal
           tryGetSensitive t = do
             subtree <- Tree.getChildWithRef CaseSensitiveString.ref t
-            return $ CaseSensitiveString.fromTree subtree <&> ABNF.CaseSensitiveCharVal
+            return $ CaseSensitiveString.fromTree subtree <&> Model.CaseSensitiveCharVal

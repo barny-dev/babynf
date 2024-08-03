@@ -3,7 +3,6 @@ name:               babynf
 version:            0.1.0.0
 synopsis:           Library for generating parsers from ABNF
 -- description:
-homepage:           brnrs.pl/projects/babynf
 license:            MIT
 license-file:       LICENSE
 author:             Barnaba Piotrowski
@@ -12,6 +11,7 @@ maintainer:         barnaba.piotrowski@gmail.com
 category:           Data
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
+tested-with: GHC == 9.2.1, GHC == 9.6.4, GHC == 9.8.2
 -- extra-source-files:
 
 common warnings
@@ -65,9 +65,9 @@ library
     other-modules:
     -- other-extensions:
     build-depends:
-        base >= 4.9 && < 4.19,
-        bytestring ^>= 0.11.4.0,
-        attoparsec ^>= 0.14.4
+        base >= 4.16 && < 4.20,
+        bytestring >= 0.11.1 && < 0.12,
+        attoparsec >= 0.14.2 && < 0.15 
     hs-source-dirs:   lib
     default-language: GHC2021
 
@@ -100,18 +100,16 @@ test-suite babynf-test
         Data.BAByNF.ABNF.Rules.Rule.Test,
         Data.BAByNF.ABNF.Rules.Rulelist.Test,
         Data.BAByNF.ABNF.Rules.Rulename.Test,
-        Data.BAByNF.ABNF.Parse.Test,
+        Data.BAByNF.ABNF.Parse.Test
     -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base >= 4.9 && < 4.19,
-        bytestring == 0.11.4.0,
+        base >= 4.16 && < 4.20,
+        bytestring >= 0.11.1 && < 0.12,
+        attoparsec >= 0.14.2 && < 0.15,
         babynf == 0.1.0.0,
         tasty == 1.4.3,
-        tasty-hunit == 0.10.0.3,
-        attoparsec == 0.14.4
-    build-tool-depends:
-        tasty-discover:tasty-discover
+        tasty-hunit == 0.10.0.3
 

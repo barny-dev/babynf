@@ -1,4 +1,7 @@
-module Data.BAByNF.ABNF.PrettyPrint where
+module Data.BAByNF.ABNF.PrettyPrint
+    ( PrettyPrint
+    , prettyPrint
+    ) where
 
 import Data.List qualified as List
 

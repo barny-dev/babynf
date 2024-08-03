@@ -7,6 +7,7 @@ module Data.BAByNF.ABNF.Rules.Element
 import Data.Functor ((<&>))
 import Data.List qualified as List
 
+import Data.BAByNF.ABNF.Model qualified as Model
 import {-# SOURCE #-} Data.BAByNF.ABNF.Rules.Option qualified as Option
 import Data.BAByNF.ABNF.Rules.CharVal qualified as CharVal
 import Data.BAByNF.ABNF.Rules.NumVal qualified as NumVal
@@ -16,54 +17,52 @@ import Data.BAByNF.ABNF.Rules.ProseVal qualified as ProseVal
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF qualified as ABNF
-import Data.BAByNF.ABNF (Element(RulenameElement))
 import Data.BAByNF.Core.Ref qualified as Ref
 
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe  "element")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe  "element")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition 
-    . ABNF.Elements 
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition 
+    . Model.Elements 
+    . Model.Alternation
     $ 
-        [ ABNF.Concatenation 
+        [ Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement Rulename.ref
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement Rulename.ref
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement Group.ref
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement Group.ref
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement Option.ref
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement Option.ref
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement CharVal.ref
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement CharVal.ref
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement NumVal.ref
-        , ABNF.Concatenation 
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement NumVal.ref
+        , Model.Concatenation 
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            $ RulenameElement ProseVal.ref
+            . Model.Repetition Model.NoRepeat
+            $ Model.RulenameElement ProseVal.ref
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.Element
+fromTree :: Tree Model.Rulename -> Either String Model.Element
 fromTree tree = 
     case Tree.nodes tree of
         [Tree.RefNode r subtree] -> 
-            if Ref.eq r Rulename.ref then Right . ABNF.RulenameElement . Rulename.fromTree $ subtree  
-            else if Ref.eq r Group.ref then Group.fromTree subtree <&> ABNF.GroupElement
-            else if Ref.eq r Option.ref then Option.fromTree subtree <&> ABNF.OptionElement
-            else if Ref.eq r CharVal.ref then CharVal.fromTree subtree <&> ABNF.CharValElement
-            else if Ref.eq r NumVal.ref then NumVal.fromTree subtree <&> ABNF.NumValElement
-            else if Ref.eq r ProseVal.ref then ProseVal.fromTree subtree <&> ABNF.ProseValElement
+            if Ref.eq r Rulename.ref then Right . Model.RulenameElement . Rulename.fromTree $ subtree  
+            else if Ref.eq r Group.ref then Group.fromTree subtree <&> Model.GroupElement
+            else if Ref.eq r Option.ref then Option.fromTree subtree <&> Model.OptionElement
+            else if Ref.eq r CharVal.ref then CharVal.fromTree subtree <&> Model.CharValElement
+            else if Ref.eq r NumVal.ref then NumVal.fromTree subtree <&> Model.NumValElement
+            else if Ref.eq r ProseVal.ref then ProseVal.fromTree subtree <&> Model.ProseValElement
             else Left "element must be rulename | group | option | char-val | num-val | prose-val"
         _ -> Left "structural mismatch for <element>"

@@ -9,39 +9,39 @@ import Data.Functor ( (<&>) )
 
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.Util.Ascii qualified as Ascii
 import Data.BAByNF.ABNF.Rules.QuotedString qualified as QuotedString
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "case-insensitive-string")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "case-insensitive-string")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition
-    . ABNF.Elements
-    . ABNF.Alternation
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition
+    . Model.Elements
+    . Model.Alternation
     . List.singleton
-    . ABNF.Concatenation
+    . Model.Concatenation
     $
-        [ ABNF.Repetition ABNF.NoRepeat
-            . ABNF.OptionElement
-            . ABNF.Option
-            . ABNF.Alternation
+        [ Model.Repetition Model.NoRepeat
+            . Model.OptionElement
+            . Model.Option
+            . Model.Alternation
             . List.singleton
-            . ABNF.Concatenation
+            . Model.Concatenation
             . List.singleton
-            . ABNF.Repetition ABNF.NoRepeat
-            . ABNF.CharValElement
-            . ABNF.CaseInsensitiveCharVal
-            . ABNF.CaseInsensitiveString
-            . ABNF.QuotedString
+            . Model.Repetition Model.NoRepeat
+            . Model.CharValElement
+            . Model.CaseInsensitiveCharVal
+            . Model.CaseInsensitiveString
+            . Model.QuotedString
             $ Ascii.stringAsBytesUnsafe "%i"
-        , ABNF.Repetition ABNF.NoRepeat
-            . ABNF.RulenameElement
+        , Model.Repetition Model.NoRepeat
+            . Model.RulenameElement
             $ QuotedString.ref
         ]
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.CaseInsensitiveString
+fromTree :: Tree Model.Rulename -> Either String Model.CaseInsensitiveString
 fromTree tree = maybe (Left "no quoted-string") 
     QuotedString.fromTree (Tree.getChildWithRef QuotedString.ref tree) 
-    <&> ABNF.CaseInsensitiveString
+    <&> Model.CaseInsensitiveString

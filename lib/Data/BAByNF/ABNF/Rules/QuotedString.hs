@@ -15,36 +15,35 @@ import Data.BAByNF.Util.Hex qualified as Hex
 
 import Data.BAByNF.Core.Tree (Tree)
 import Data.BAByNF.Core.Tree qualified as Tree
-
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Core qualified as Core
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "quoted-string")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "quoted-string")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref  ABNF.BasicDefinition
-    ( ABNF.Elements $ 
-        ABNF.Alternation [ABNF.Concatenation 
-            [ ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Core.dquoteRef)
-            , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) (ABNF.GroupElement . ABNF.Group . ABNF.Alternation $
-                    [ ABNF.Concatenation [ ABNF.Repetition ABNF.NoRepeat $ ABNF.NumValElement . ABNF.HexNumVal $ 
-                        ABNF.RangeHexVal (Hex.Seq [Hex.X2, Hex.X0]) (Hex.Seq [Hex.X2, Hex.X1])]
-                    , ABNF.Concatenation [ ABNF.Repetition ABNF.NoRepeat $ ABNF.NumValElement . ABNF.HexNumVal $
-                        ABNF.RangeHexVal (Hex.Seq [Hex.X2, Hex.X3]) (Hex.Seq [Hex.X7, Hex.XE])]
+rule :: Model.Rule
+rule = Model.Rule ref  Model.BasicDefinition
+    ( Model.Elements $ 
+        Model.Alternation [Model.Concatenation 
+            [ Model.Repetition Model.NoRepeat (Model.RulenameElement Core.dquoteRef)
+            , Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound) (Model.GroupElement . Model.Group . Model.Alternation $
+                    [ Model.Concatenation [ Model.Repetition Model.NoRepeat $ Model.NumValElement . Model.HexNumVal $ 
+                        Model.RangeHexVal (Hex.Seq [Hex.X2, Hex.X0]) (Hex.Seq [Hex.X2, Hex.X1])]
+                    , Model.Concatenation [ Model.Repetition Model.NoRepeat $ Model.NumValElement . Model.HexNumVal $
+                        Model.RangeHexVal (Hex.Seq [Hex.X2, Hex.X3]) (Hex.Seq [Hex.X7, Hex.XE])]
                     ])
                 
-            , ABNF.Repetition ABNF.NoRepeat (ABNF.RulenameElement Core.dquoteRef)
+            , Model.Repetition Model.NoRepeat (Model.RulenameElement Core.dquoteRef)
             ]
         ]
     )
 
-fromTree :: Tree ABNF.Rulename -> Either String ABNF.QuotedString
+fromTree :: Tree Model.Rulename -> Either String Model.QuotedString
 fromTree tree =
     maybe (Left "quoted-string must be between \" and \"") Right $
         unconsnoc (Tree.stringify tree) >>= \(h, m, l) ->
             if h == 34 && l == 34
-                then Just (ABNF.QuotedString m)
+                then Just (Model.QuotedString m)
                 else Nothing
 
 unconsnoc :: ByteString -> Maybe (Word8, ByteString, Word8)

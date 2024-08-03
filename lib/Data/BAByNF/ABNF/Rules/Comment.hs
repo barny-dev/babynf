@@ -6,24 +6,23 @@ module Data.BAByNF.ABNF.Rules.Comment
 import Data.List qualified as List
 
 import Data.BAByNF.Util.Ascii qualified as Ascii
-
-import Data.BAByNF.ABNF qualified as ABNF
 import Data.BAByNF.ABNF.Core qualified as Core
+import Data.BAByNF.ABNF.Model qualified as Model
 
-ref :: ABNF.Rulename
-ref = ABNF.Rulename (Ascii.stringAsBytesUnsafe "comment")
+ref :: Model.Rulename
+ref = Model.Rulename (Ascii.stringAsBytesUnsafe "comment")
 
-rule :: ABNF.Rule
-rule = ABNF.Rule ref ABNF.BasicDefinition $ 
-    ABNF.Elements . ABNF.Alternation . List.singleton . ABNF.Concatenation $
-        [ ABNF.Repetition ABNF.NoRepeat $
-          ABNF.CharValElement . ABNF.CaseInsensitiveCharVal . ABNF.CaseInsensitiveString . ABNF.QuotedString $
+rule :: Model.Rule
+rule = Model.Rule ref Model.BasicDefinition $ 
+    Model.Elements . Model.Alternation . List.singleton . Model.Concatenation $
+        [ Model.Repetition Model.NoRepeat $
+          Model.CharValElement . Model.CaseInsensitiveCharVal . Model.CaseInsensitiveString . Model.QuotedString $
           Ascii.stringAsBytesUnsafe ";"
-        , ABNF.Repetition (ABNF.RangedRepeat ABNF.UnBound ABNF.UnBound) $
-          ABNF.GroupElement . ABNF.Group . ABNF.Alternation $
-            [ ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat . ABNF.RulenameElement $ Core.wspRef
-            , ABNF.Concatenation . List.singleton . ABNF.Repetition ABNF.NoRepeat . ABNF.RulenameElement $ Core.vcharRef
+        , Model.Repetition (Model.RangedRepeat Model.UnBound Model.UnBound) $
+          Model.GroupElement . Model.Group . Model.Alternation $
+            [ Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat . Model.RulenameElement $ Core.wspRef
+            , Model.Concatenation . List.singleton . Model.Repetition Model.NoRepeat . Model.RulenameElement $ Core.vcharRef
             ]
-        , ABNF.Repetition ABNF.NoRepeat $ 
-          ABNF.RulenameElement Core.crlfRef
+        , Model.Repetition Model.NoRepeat $ 
+          Model.RulenameElement Core.crlfRef
         ]

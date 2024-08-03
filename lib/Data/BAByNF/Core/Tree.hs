@@ -1,4 +1,25 @@
-module Data.BAByNF.Core.Tree where
+module Data.BAByNF.Core.Tree
+    ( Tree (..)
+    , Node (..)
+    , nodes
+    , empty
+    , singleton
+    , asSingleton
+    , stringify
+    , stringifyNode
+    , mergeStrings
+    , mergeStringsInNode
+    , dropRefs
+    , getChildrenWithRef
+    , getChildWithRef
+    , tryGetChildWithRef
+    , getDescendantsWithPath
+    , getFirstDescendantWithPath
+    , tryGetFirstPath
+    , getSubtreeIfRef
+    , isStringEq
+    , isRefOf
+    ) where
 
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as ByteString

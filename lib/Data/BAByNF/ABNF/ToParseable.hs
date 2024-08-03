@@ -1,4 +1,7 @@
-module Data.BAByNF.ABNF.ToParseable where
+module Data.BAByNF.ABNF.ToParseable
+    ( ToParseable
+    , toParseable
+    ) where
 
 import Data.Functor ((<&>))
 import Data.List.NonEmpty qualified as List.NonEmpty

@@ -1,4 +1,11 @@
-module Data.BAByNF.Util.Decimal where
+module Data.BAByNF.Util.Decimal
+    ( Digit (..)
+    , Seq (..)
+    , val
+    , toNum
+    , fromVal
+    , toChar
+    ) where
 
 data Digit = D0 
            | D1
