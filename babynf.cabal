@@ -1,6 +1,6 @@
 cabal-version:      3.4
 name:               babynf
-version:            0.1.0.0
+version:            0.1.0.1
 synopsis:           Library for generating parsers from ABNF
 description:        A library for parsing ABNF grammars and generating parsers from ABNF grammars.
 license:            MIT
@@ -12,9 +12,10 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 tested-with: GHC == 9.2.1, GHC == 9.6.4, GHC == 9.8.2
 
-source-repository head
+source-repository this
     type: git
     location: https://github.com/barny-dev/babynf.git
+    tag: 0.1.0.1
 
 common warnings
     ghc-options: -Wall
@@ -111,7 +112,7 @@ test-suite babynf-test
         base >= 4.16 && < 4.20,
         bytestring >= 0.11.1 && < 0.12,
         attoparsec >= 0.14.2 && < 0.15,
-        babynf == 0.1.0.0,
+        babynf == 0.1.0.1,
         tasty == 1.4.3,
         tasty-hunit == 0.10.0.3
 
