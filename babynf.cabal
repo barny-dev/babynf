@@ -2,17 +2,19 @@ cabal-version:      3.4
 name:               babynf
 version:            0.1.0.0
 synopsis:           Library for generating parsers from ABNF
--- description:
+description:        A library for parsing ABNF grammars and generating parsers from ABNF grammars.
 license:            MIT
 license-file:       LICENSE
 author:             Barnaba Piotrowski
 maintainer:         barnaba.piotrowski@gmail.com
--- copyright:
 category:           Data
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md
 tested-with: GHC == 9.2.1, GHC == 9.6.4, GHC == 9.8.2
--- extra-source-files:
+
+source-repository head
+    type: git
+    location: https://github.com/barny-dev/babynf.git
 
 common warnings
     ghc-options: -Wall
