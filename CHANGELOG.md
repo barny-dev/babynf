@@ -8,3 +8,7 @@
 
 * Update for publishability. Not official.
 
+## 0.1.0.2 -- 2024-08-05
+
+* Dependency bounds improvements.
+* First release to Hackage.
