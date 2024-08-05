@@ -109,10 +109,11 @@ test-suite babynf-test
     hs-source-dirs:   test
     main-is:          Main.hs
     build-depends:
-        base >= 4.16 && < 4.20,
-        bytestring >= 0.11.1 && < 0.12,
-        attoparsec >= 0.14.2 && < 0.15,
-        babynf == 0.1.0.1,
-        tasty == 1.4.3,
-        tasty-hunit == 0.10.0.3
+        babynf,
+        base,
+        bytestring,
+        attoparsec,
+        tasty >= 1.2 && < 1.6,
+        tasty-hunit >= 0.10 && < 0.11
+
 
