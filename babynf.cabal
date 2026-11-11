@@ -12,6 +12,7 @@ build-type:         Simple
 extra-doc-files:    CHANGELOG.md README.md docs/development.md docs/parser-contract.md
 extra-source-files: cabal.project
 tested-with:
+    GHC == 9.0.2,
     GHC == 9.2.8,
     GHC == 9.4.8,
     GHC == 9.6.7,
@@ -27,6 +28,15 @@ source-repository this
 
 common warnings
     ghc-options: -Wall
+    default-language: Haskell2010
+    default-extensions:
+        ExistentialQuantification
+        GADTSyntax
+        ImportQualifiedPost
+        InstanceSigs
+        KindSignatures
+        StandaloneDeriving
+        TupleSections
 
 library
     import:           warnings
@@ -76,15 +86,13 @@ library
     other-modules:
     -- other-extensions:
     build-depends:
-        base >= 4.16 && < 4.23,
+        base >= 4.15 && < 4.23,
         bytestring >= 0.11.1 && < 0.13,
         attoparsec >= 0.14.2 && < 0.15 
     hs-source-dirs:   lib
-    default-language: GHC2021
 
 test-suite babynf-test
     import:           warnings
-    default-language: GHC2021
     other-modules:
         Data.BAByNF.Core.Parseable.Test,
         Data.BAByNF.ABNF.Contract.Test,
@@ -134,7 +142,6 @@ test-suite babynf-test
 benchmark babynf-bench
     import:           warnings
     type:             exitcode-stdio-1.0
-    default-language: GHC2021
     hs-source-dirs:   bench support
     main-is:          Main.hs
     other-modules:    ParserFixtures
