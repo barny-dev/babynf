@@ -69,6 +69,10 @@ testModule = testGroup "core interpreter contract"
             input = bytes "abc"
          in mapM_ (\n -> finish (A.feed (A.parse p (BS.take n input)) (BS.drop n input))
                     @?= Right (leaves ["ab", "c"])) [0 .. BS.length input]
+    , testCase "alternative rollback spans multiple incremental chunks" $
+        let p = toParser empty (seqP [altP [literal "a", literal "ab"], literal "c"])
+            result = foldl A.feed (A.parse p (bytes "a")) [bytes "b", bytes "c", BS.empty]
+         in finish result @?= Right (leaves ["ab", "c"])
     ]
 
 empty :: Dict M.Rulename
