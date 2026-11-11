@@ -11,7 +11,14 @@ category:           Data
 build-type:         Simple
 extra-doc-files:    CHANGELOG.md README.md docs/development.md docs/parser-contract.md
 extra-source-files: cabal.project
-tested-with: GHC == 9.2.1, GHC == 9.6.4, GHC == 9.8.2
+tested-with:
+    GHC == 9.2.8,
+    GHC == 9.4.8,
+    GHC == 9.6.7,
+    GHC == 9.8.4,
+    GHC == 9.10.3,
+    GHC == 9.12.4,
+    GHC == 9.14.1
 
 source-repository this
     type: git
