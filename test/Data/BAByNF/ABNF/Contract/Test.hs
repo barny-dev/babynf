@@ -11,6 +11,10 @@ testModule :: TestTree
 testModule = testGroup "ABNF integration contract"
     [ testCase "HTTP request fixture" $ matches httpGrammar httpRequest
     , testCase "SMTP multiline fixture" $ matches smtpGrammar smtpResponse
+    , testCase "grammar comments are recognized and omitted from the model" $
+        case ABNF.parseRulelist (bytes "; heading\r\nstart = \"a\" ; inline\r\n") of
+            Left err -> assertFailure err
+            Right rs -> ABNF.parseRulelist (bytes "start = \"a\"\r\n") @?= Right rs
     , testCase "incremental rule definitions append alternatives" $
         matches (grammar ["start = token", "token = \"a\"", "TOKEN =/ \"b\""]) (bytes "b")
     , testCase "default literals ignore ASCII case" $

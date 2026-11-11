@@ -1,22 +1,75 @@
 # BAByNF
 
-BAByNF is a library that is able to parse ABNF and generate parsers based on grammars defined in ABNF. Other formats may be supported in the future.
+BAByNF reads ABNF grammars and uses them to parse strict `ByteString` input into
+trees. It provides a grammar model, ABNF core rules, a grammar reader, and a
+pretty printer. The current execution backend is attoparsec.
 
-This is baby's first Haskell library. No need to be gentle.
+## Parse a word
 
-Build and compiler coverage are described in [development.md](docs/development.md).
-The [parser contract](docs/parser-contract.md) records backtracking behavior,
-regression coverage, known defects, and the performance baseline.
+Add `babynf` and `bytestring` to your component's `build-depends`. This complete
+program reads a grammar, adds the core rules needed by `ALPHA`, and parses input
+using the `word` rule:
 
-## ABNF
+```haskell
+module Main (main) where
 
-This library provides a model for ABNF grammars (see module `Data.BAByNF.ABNF.Model`) and both core ABNF rules (see module `Data.BAByNF.ABNF.Core`) and ABNF rules for ABNF (see `Data.BAByNF.ABNF.Rules.*` modules). The `Data.BAByNF.ABNF.Parse` module provides methods to parse bytestrings into ABNF rule lists and to parse ABNF grammar structures (such as rules referenced by name) into tree-like structures. 
+import qualified Data.ByteString.Char8 as B8
+import qualified Data.BAByNF.ABNF.Core as Core
+import qualified Data.BAByNF.ABNF.Model as Model
+import qualified Data.BAByNF.ABNF.Parse as ABNF
+import qualified Data.BAByNF.Core.Tree as Tree
 
-Prose support: TBD (currently fail when encountered)
+main :: IO ()
+main = do
+    Model.Rulelist rules <- either fail pure $
+        ABNF.parseRulelist (B8.pack "word = 1*ALPHA\r\n")
+    tree <- either fail pure $
+        ABNF.parse
+            (Model.Rulelist (rules ++ Core.rules))
+            (Model.Rulename (B8.pack "word"))
+            (B8.pack "Hello")
+    B8.putStrLn (Tree.stringify tree)
+```
 
-Comments support: TBD (currently ignored during parsing)
+Output: `Hello`.
 
-## Tree
+Grammar text uses CRLF line endings, including the final rule terminator.
+`parseRulelist` reads syntax; it does not validate every reference or repetition
+bound. `parse` requires the entire input to match and returns
+`Either String (Tree Rulename)`. Add core rules explicitly when the application
+grammar refers to names such as `ALPHA` or `DIGIT`.
 
-BAByNF parsers output tree-like structures defined in `Data.BAByNF.Core.Tree`. A tree is built of anonymous nodes that either contain a bytestring fragment or named nodes that contain a subtree. The later are used to represent output of parsing behind references (such as ABNF rule names).
+## Behavior and limitations
 
+- Rule names and ordinary quoted literals ignore ASCII case. `%s` literals are
+  case sensitive. Numeric terminals match bytes.
+- Grammar alternatives can be retried when a later expression fails. Greedy
+  repetition can give matches back to its suffix.
+- `Tree.StringNode` stores a matched byte fragment. `Tree.RefNode` stores a rule
+  reference and its subtree. `Tree.stringify` concatenates the matched fragments.
+- Comments are accepted in grammar text but not retained in `Model.Rulelist`.
+  Pretty printing does not preserve comments or original formatting.
+- Prose values (`<...>`) can be read into the grammar model. An executable prose
+  element fails when reached; no custom prose resolver is provided yet.
+- Errors are strings without source positions. Invalid grammars can also cause
+  exceptions or nontermination, and numeric values above 255 can wrap to bytes.
+  Read the [parser behavior and known limitations](docs/parser-contract.md)
+  before executing untrusted grammars.
+
+## Modules
+
+| Module | Purpose |
+| --- | --- |
+| `Data.BAByNF.ABNF.Model` | Construct and inspect grammar values. |
+| `Data.BAByNF.ABNF.Parse` | Read grammar text and parse application input. |
+| `Data.BAByNF.ABNF.Core` | Standard ABNF core-rule definitions. |
+| `Data.BAByNF.ABNF.PrettyPrint` | Render grammar values as ABNF. |
+| `Data.BAByNF.Core.Tree` | Inspect, transform, and stringify parse trees. |
+| `Data.BAByNF.Core.Parseable` | Build parser expressions and obtain an attoparsec parser. |
+
+## Development
+
+The compatibility target starts at GHC 9.0; CI covers the stable families through
+9.14, plus macOS and Windows on GHC 9.12. See
+[development.md](docs/development.md) for build commands, exact compiler versions,
+test interpretation, benchmarks, and CI reproduction.

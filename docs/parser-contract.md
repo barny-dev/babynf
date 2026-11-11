@@ -1,8 +1,7 @@
 # Parser behavior and regression baseline
 
-This document records the current interpreter behavior that a replacement backend
-must preserve unless an API change explicitly says otherwise. Known defects are
-listed separately; they are not promises that invalid grammars remain accepted.
+This document describes the current parser behavior and known limitations.
+The regression suite uses these behaviors as a baseline for backend changes.
 
 ## Supported execution behavior
 
@@ -16,7 +15,7 @@ listed separately; they are not promises that invalid grammars remain accepted.
 - An earlier alternative can be reconsidered when its continuation fails:
   `start = ("a" / "ab") "c"` accepts `abc`.
 - Repetition is greedy but can give matches back to a suffix:
-  `start = *"a" "a"` accepts `a`. Minimum and maximum counts are enforced.
+  `start = *"a" "a"` accepts `a`. Valid minimum and maximum counts are enforced.
 - Finite repetition of an empty match terminates; unbounded empty matches are a
   known defect below. Consuming right recursion is supported.
 - `Core.Parseable.toParser` and the public `ABNF.parse` require EOF. The exposed
@@ -24,6 +23,12 @@ listed separately; they are not promises that invalid grammars remain accepted.
   overlapping-alternative example with complete-buffer parsing.
 - Custom `Unit` actions can consume input and return named subtrees. Prose
   elements currently fail if reached; there is no prose resolver yet.
+
+Grammar text uses CRLF line endings, including the final terminator.
+`ABNF.parseRulelist` returns a semantic grammar model: comments are recognized
+but discarded, and no source positions are retained. The reader does not perform
+complete grammar validation. `ABNF.parse` does not implicitly add core-rule
+definitions; applications must include them when required.
 
 The core tests construct `Parseable` expressions directly, independently of the
 ABNF syntax reader. Integration tests exercise grammar reading and protocol
@@ -46,22 +51,15 @@ CI too, prompting removal of the marker when the implementation is fixed.
 | `nullable-repeat` | Terminate on an unbounded repetition of a nullable expression. |
 | `direct-left-recursion`, `indirect-left-recursion` | Diagnose unsupported left recursion without divergence. |
 
-These establish validation and termination targets for the planned compiler and
-native backend. They do not introduce grammar validation or a new error API.
+These are validation and termination targets. The current implementation can
+accept the invalid definitions or wrapped numeric values above; reversed bounds
+can throw an exception, and nullable repetition or left recursion can diverge.
+Errors returned through the public API are unstructured strings. A successful
+grammar read is insufficient to establish that executing it is safe.
 Each probe runs in a child test process with a 64 MiB heap limit, an 8 MiB stack
 limit, and a five-second parent timeout. A crash, resource exhaustion, timeout,
 or acceptance is not a successful rejection. The normal regression suite is not
 marked as expected failure.
 
-## Performance baseline
-
-`babynf-bench` covers HTTP and multiline SMTP input, flat repetition at increasing
-sizes, overlapping alternatives whose suffix forces retries, consuming right
-recursion, and late invalid input. Fixtures are checked before timings start.
-Every successful output tree is traversed; measurements do not stop at the
-outer `Either` constructor or include `Show` rendering.
-
-Timings include input parsing and tree traversal. Grammar text is parsed before
-measurement, so these results isolate the current execution path rather than
-grammar-reading costs. Run the same scenarios and consumption contract after a
-backend change. The CI CSV is a baseline artifact, without speed thresholds.
+Benchmark scenarios and measurement instructions are described in
+[development.md](development.md#benchmarks).
