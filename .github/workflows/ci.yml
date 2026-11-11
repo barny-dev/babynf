@@ -63,7 +63,7 @@ jobs:
       - name: Build library, tests, and benchmarks
         run: cabal build all --enable-tests --enable-benchmarks 2>&1 | tee ci-results/build.log
       - name: Run tests, including explicit expected failures
-        run: cabal test all --test-show-details=direct --test-options='--timeout 30s --num-threads 2' 2>&1 | tee ci-results/tests.log
+        run: cabal test all --enable-tests --test-show-details=direct --test-options='--timeout 30s --num-threads 2' 2>&1 | tee ci-results/tests.log
       - name: Save toolchain, solver plan, and logs
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -85,7 +85,7 @@ jobs:
       - name: Build and test oldest declared library dependencies
         run: |
           cabal build all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2'
-          cabal test all --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2' --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
+          cabal test all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2' --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
 
   package:
     name: Source distribution, documentation, and benchmark baseline
@@ -106,16 +106,16 @@ jobs:
       - name: Build and test exclusively from packaged sources
         run: |
           cd package-check/babynf-*
-          cabal build all --enable-tests --enable-benchmarks
-          cabal test all --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
-          cabal haddock lib:babynf
+          cabal build all --project-file=./cabal.project --enable-tests --enable-benchmarks
+          cabal test all --project-file=./cabal.project --enable-tests --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
+          cabal haddock lib:babynf --project-file=./cabal.project
       - name: Record benchmark baseline without timing thresholds
         run: |
           mkdir -p ci-results
           ghc --version > ci-results/toolchain.txt
           cabal --version >> ci-results/toolchain.txt
           cd package-check/babynf-*
-          cabal bench babynf-bench --benchmark-options='--timeout 0.1 --csv baseline.csv +RTS -T -RTS'
+          cabal bench babynf-bench --project-file=./cabal.project --enable-benchmarks --benchmark-options='--timeout 0.1 --csv baseline.csv +RTS -T -RTS'
           cp baseline.csv ../../ci-results/baseline.csv
           cp dist-newstyle/cache/plan.json ../../ci-results/plan.json
       - name: Save source archive and benchmark baseline

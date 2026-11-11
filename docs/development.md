@@ -5,10 +5,10 @@ Use GHC 9.2 or newer and Cabal 3.16.1.0 for the CI-equivalent commands:
 ```sh
 cabal update
 cabal build all --enable-tests --enable-benchmarks
-cabal test all --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
+cabal test all --enable-tests --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
 cabal check
 cabal haddock lib:babynf
-cabal bench babynf-bench --benchmark-options='--timeout 0.1 --csv baseline.csv +RTS -T -RTS'
+cabal bench babynf-bench --enable-benchmarks --benchmark-options='--timeout 0.1 --csv baseline.csv +RTS -T -RTS'
 ```
 
 Increase the benchmark timeout for more stable local measurements and compare on
@@ -34,7 +34,7 @@ GHC 9.2.8. Test tools use compatible versions, not artificially minimal versions
 
 ```sh
 cabal build all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2'
-cabal test all --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2' --test-show-details=direct
+cabal test all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2' --test-show-details=direct
 ```
 
 The package job creates a source archive, then builds the library, tests, and
