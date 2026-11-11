@@ -9,7 +9,7 @@ author:             Barnaba Piotrowski
 maintainer:         barnaba.piotrowski@gmail.com
 category:           Data
 build-type:         Simple
-extra-doc-files:    CHANGELOG.md
+extra-doc-files:    CHANGELOG.md README.md docs/development.md docs/parser-contract.md
 tested-with: GHC == 9.2.1, GHC == 9.6.4, GHC == 9.8.2
 
 source-repository this
@@ -68,8 +68,8 @@ library
     other-modules:
     -- other-extensions:
     build-depends:
-        base >= 4.16 && < 4.20,
-        bytestring >= 0.11.1 && < 0.12,
+        base >= 4.16 && < 4.23,
+        bytestring >= 0.11.1 && < 0.13,
         attoparsec >= 0.14.2 && < 0.15 
     hs-source-dirs:   lib
     default-language: GHC2021
@@ -78,6 +78,10 @@ test-suite babynf-test
     import:           warnings
     default-language: GHC2021
     other-modules:
+        Data.BAByNF.Core.Parseable.Test,
+        Data.BAByNF.ABNF.Contract.Test,
+        Data.BAByNF.KnownIssues.Test,
+        ParserFixtures,
         Data.BAByNF.Util.Ascii.Test,
         Data.BAByNF.ABNF.Rules.Alternation.Test,
         Data.BAByNF.ABNF.Rules.BinVal.Test,
@@ -106,14 +110,32 @@ test-suite babynf-test
         Data.BAByNF.ABNF.Parse.Test
     -- other-extensions:
     type:             exitcode-stdio-1.0
-    hs-source-dirs:   test
+    hs-source-dirs:   test support
     main-is:          Main.hs
+    ghc-options:      -threaded -rtsopts
     build-depends:
         babynf,
         base,
         bytestring,
         attoparsec,
         tasty >= 1.2 && < 1.6,
-        tasty-hunit >= 0.10 && < 0.11
+        tasty-hunit >= 0.10 && < 0.11,
+        tasty-expected-failure >= 0.12.3 && < 0.13,
+        process >= 1.6 && < 1.7
+
+benchmark babynf-bench
+    import:           warnings
+    type:             exitcode-stdio-1.0
+    default-language: GHC2021
+    hs-source-dirs:   bench support
+    main-is:          Main.hs
+    other-modules:    ParserFixtures
+    ghc-options:      -rtsopts
+    build-depends:
+        babynf,
+        base,
+        bytestring,
+        attoparsec,
+        tasty-bench >= 0.5 && < 0.6
 
 

@@ -1,5 +1,13 @@
 # Revision history for babynf
 
+## Unreleased
+
+* Add a GHC 9.2–9.14 CI matrix, macOS/Windows checks, library lower-bound checks,
+  and source-distribution/Haddock verification.
+* Allow base 4.20–4.22 and bytestring 0.12, subject to the compatibility matrix.
+* Add interpreter and integration regressions, isolated expected-failure cases
+  for known validation/termination defects, and protocol/interpreter benchmarks.
+
 ## 0.1.0.0 -- 2024-08-03
 
 * First version. Released on an unsuspecting world. Not official.
