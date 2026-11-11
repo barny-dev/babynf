@@ -22,9 +22,11 @@ macOS and Windows jobs use 9.12.4. Old compiler jobs use Ubuntu 22.04 to retain
 compatible bindist system libraries. Every matrix job builds the library, tests,
 and benchmark component, then runs tests. Cabal and action revisions are pinned.
 
-The workflow runs on pushes, pull requests, manual dispatch, and weekly against
-the current Hackage index. Solver plans, freeze files, toolchain information, and
-logs are retained for fourteen days. Dependency caches are separated by OS,
+The workflow runs on pushes to `master`/`develop`, pull requests, manual dispatch,
+and weekly against the current Hackage index. Feature branches run through the PR
+event to avoid duplicate push/PR matrices. Runs share a concurrency group per
+source branch. Solver plans, freeze files, toolchain information, and logs are
+retained for fourteen days. Dependency caches are separated by OS,
 architecture, compiler, Cabal, and solver plan. `tested-with` is updated only after
 successful verification; declared bounds and the CI matrix are not proof of a
 completed run.
