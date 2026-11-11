@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-* Add a GHC 9.2–9.14 CI matrix, macOS/Windows checks, library lower-bound checks,
+* Add a GHC 9.0–9.14 CI matrix, macOS/Windows checks, library lower-bound checks,
   and source-distribution/Haddock verification.
+* Support GHC 9.0 with explicit language extensions and base 4.15.
 * Allow base 4.20–4.22 and bytestring 0.12, subject to the compatibility matrix.
 * Add interpreter and integration regressions, isolated expected-failure cases
   for known validation/termination defects, and protocol/interpreter benchmarks.

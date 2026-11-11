@@ -1,6 +1,6 @@
 # Development and compatibility checks
 
-Use GHC 9.2 or newer and Cabal 3.16.1.0 for the CI-equivalent commands:
+Use GHC 9.0 or newer and Cabal 3.16.1.0 for the CI-equivalent commands:
 
 ```sh
 cabal update
@@ -17,7 +17,7 @@ cases documenting existing defects; see [parser-contract.md](parser-contract.md)
 
 ## CI matrix
 
-Linux jobs use GHC 9.2.8, 9.4.8, 9.6.7, 9.8.4, 9.10.3, 9.12.4, and 9.14.1.
+Linux jobs use GHC 9.0.2, 9.2.8, 9.4.8, 9.6.7, 9.8.4, 9.10.3, 9.12.4, and 9.14.1.
 macOS and Windows jobs use 9.12.4. Old compiler jobs use Ubuntu 22.04 to retain
 compatible bindist system libraries. Every matrix job builds the library, tests,
 and benchmark component, then runs tests. Cabal and action revisions are pinned.
@@ -32,7 +32,7 @@ successful verification; declared bounds and the CI matrix are not proof of a
 completed run.
 
 The lower-bound job tests the oldest declared library dependencies together on
-GHC 9.2.8. Test tools use compatible versions, not artificially minimal versions:
+GHC 9.0.2. Test tools use compatible versions, not artificially minimal versions:
 
 ```sh
 cabal build all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2'
@@ -53,3 +53,9 @@ helps identify transitive selections. Freeze files are intentionally not
 committed as a universal dependency plan for all compilers.
 
 No release upload, branch protection change, or deployment is performed by CI.
+
+The compatibility floor is GHC 9.0 (`base >= 4.15`). Shared explicit extensions
+provide the language features used by the code without requiring the GHC2021
+edition introduced in GHC 9.2. The GHC 9.0 Linux jobs install `libtinfo5` for
+older compiler bindists. Future compiler families are added to the verified
+matrix before extending the corresponding `base` upper bound.

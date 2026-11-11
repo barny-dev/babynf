@@ -28,6 +28,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - {os: ubuntu-22.04, ghc: '9.0.2'}
           - {os: ubuntu-22.04, ghc: '9.2.8'}
           - {os: ubuntu-22.04, ghc: '9.4.8'}
           - {os: ubuntu-24.04, ghc: '9.6.7'}
@@ -39,6 +40,9 @@ jobs:
           - {os: windows-latest, ghc: '9.12.4'}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install GHC 9.0 runtime dependency
+        if: matrix.ghc == '9.0.2'
+        run: sudo apt-get update && sudo apt-get install -y libtinfo5
       - uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2
         id: setup
         with:
@@ -74,14 +78,16 @@ jobs:
           retention-days: 14
 
   lower-bounds:
-    name: Library lower bounds / GHC 9.2.8
+    name: Library lower bounds / GHC 9.0.2
     runs-on: ubuntu-22.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install GHC 9.0 runtime dependency
+        run: sudo apt-get update && sudo apt-get install -y libtinfo5
       - uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2
         with:
-          ghc-version: '9.2.8'
+          ghc-version: '9.0.2'
           cabal-version: '3.16.1.0'
       - name: Build and test oldest declared library dependencies
         run: |
