@@ -19,6 +19,11 @@ cabal.sandbox.config
 .stack-work/
 cabal.project.local
 cabal.project.local~
+cabal.project.freeze
+ci-results/
+package-check/
+sdist/
+baseline.csv
 .HTF/
 .ghc.environment.*
 

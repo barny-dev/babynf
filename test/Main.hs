@@ -1,6 +1,11 @@
 module Main (main) where
 
 import Test.Tasty qualified as Tasty
+import System.Environment (getArgs)
+
+import Data.BAByNF.Core.Parseable.Test qualified as Core.Parseable
+import Data.BAByNF.ABNF.Contract.Test qualified as ABNF.Contract
+import Data.BAByNF.KnownIssues.Test qualified as KnownIssues
 
 import Data.BAByNF.ABNF.Rules.Alternation.Test qualified as ABNF.Rules.Alternation
 import Data.BAByNF.ABNF.Rules.BinVal.Test qualified as ABNF.Rules.BinVal
@@ -30,9 +35,19 @@ import Data.BAByNF.ABNF.Parse.Test qualified as ABNF.Parse
 import Data.BAByNF.Util.Ascii.Test qualified as Util.Ascii
 
 main :: IO ()
-main = Tasty.defaultMain $
+main = do
+    args <- getArgs
+    case args of
+        ["--babynf-probe", name] -> KnownIssues.runProbe name
+        _ -> Tasty.defaultMain tests
+
+tests :: Tasty.TestTree
+tests =
     Tasty.testGroup "babynf-test" 
-        [ Tasty.testGroup "module-tests"
+        [ Core.Parseable.testModule
+        , ABNF.Contract.testModule
+        , KnownIssues.testModule
+        , Tasty.testGroup "module-tests"
             [ ABNF.Rules.Alternation.testModule
             , ABNF.Rules.BinVal.testModule
             , ABNF.Rules.CaseInsensitiveString.testModule

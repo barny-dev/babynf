@@ -1,0 +1,4 @@
+packages: .
+
+-- Compiler compatibility jobs deliberately solve against the current Hackage
+-- index. Pin --index-state when reproducing a recorded solver plan.

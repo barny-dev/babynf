@@ -4,6 +4,10 @@ BAByNF is a library that is able to parse ABNF and generate parsers based on gra
 
 This is baby's first Haskell library. No need to be gentle.
 
+Build and compiler coverage are described in [development.md](docs/development.md).
+The [parser contract](docs/parser-contract.md) records backtracking behavior,
+regression coverage, known defects, and the performance baseline.
+
 ## ABNF
 
 This library provides a model for ABNF grammars (see module `Data.BAByNF.ABNF.Model`) and both core ABNF rules (see module `Data.BAByNF.ABNF.Core`) and ABNF rules for ABNF (see `Data.BAByNF.ABNF.Rules.*` modules). The `Data.BAByNF.ABNF.Parse` module provides methods to parse bytestrings into ABNF rule lists and to parse ABNF grammar structures (such as rules referenced by name) into tree-like structures. 

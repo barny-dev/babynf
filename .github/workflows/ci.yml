@@ -1,0 +1,129 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    name: GHC ${{ matrix.ghc }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-22.04, ghc: '9.2.8'}
+          - {os: ubuntu-22.04, ghc: '9.4.8'}
+          - {os: ubuntu-24.04, ghc: '9.6.7'}
+          - {os: ubuntu-24.04, ghc: '9.8.4'}
+          - {os: ubuntu-24.04, ghc: '9.10.3'}
+          - {os: ubuntu-24.04, ghc: '9.12.4'}
+          - {os: ubuntu-24.04, ghc: '9.14.1'}
+          - {os: macos-latest, ghc: '9.12.4'}
+          - {os: windows-latest, ghc: '9.12.4'}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2
+        id: setup
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: '3.16.1.0'
+          cabal-update: false
+      - name: Resolve current dependencies
+        run: |
+          mkdir -p ci-results
+          ghc --version | tee ci-results/toolchain.txt
+          cabal --version | tee -a ci-results/toolchain.txt
+          date -u | tee -a ci-results/toolchain.txt
+          cabal update
+          cabal build all --enable-tests --enable-benchmarks --dry-run
+          cp dist-newstyle/cache/plan.json ci-results/plan.json
+          cabal freeze --enable-tests --enable-benchmarks
+          cp cabal.project.freeze ci-results/cabal.project.freeze
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ steps.setup.outputs.cabal-store }}
+          key: ${{ runner.os }}-${{ runner.arch }}-ghc-${{ matrix.ghc }}-cabal-3.16.1.0-${{ hashFiles('ci-results/plan.json') }}
+          restore-keys: ${{ runner.os }}-${{ runner.arch }}-ghc-${{ matrix.ghc }}-cabal-3.16.1.0-
+      - name: Build library, tests, and benchmarks
+        run: cabal build all --enable-tests --enable-benchmarks 2>&1 | tee ci-results/build.log
+      - name: Run tests, including explicit expected failures
+        run: cabal test all --test-show-details=direct --test-options='--timeout 30s --num-threads 2' 2>&1 | tee ci-results/tests.log
+      - name: Save toolchain, solver plan, and logs
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: results-${{ matrix.os }}-ghc-${{ matrix.ghc }}
+          path: ci-results/
+          retention-days: 14
+
+  lower-bounds:
+    name: Library lower bounds / GHC 9.2.8
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2
+        with:
+          ghc-version: '9.2.8'
+          cabal-version: '3.16.1.0'
+      - name: Build and test oldest declared library dependencies
+        run: |
+          cabal build all --enable-tests --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2'
+          cabal test all --constraint='bytestring == 0.11.1.0' --constraint='attoparsec == 0.14.2' --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
+
+  package:
+    name: Source distribution, documentation, and benchmark baseline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: haskell-actions/setup@0f8e8c99d88aeb3fbfd523f1ef2c6f762d10d64d # v2
+        with:
+          ghc-version: '9.14.1'
+          cabal-version: '3.16.1.0'
+      - name: Check package and extract source distribution
+        run: |
+          cabal check
+          cabal sdist --output-directory=sdist
+          mkdir package-check
+          tar -xzf sdist/babynf-*.tar.gz -C package-check
+      - name: Build and test exclusively from packaged sources
+        run: |
+          cd package-check/babynf-*
+          cabal build all --enable-tests --enable-benchmarks
+          cabal test all --test-show-details=direct --test-options='--timeout 30s --num-threads 2'
+          cabal haddock lib:babynf
+      - name: Record benchmark baseline without timing thresholds
+        run: |
+          mkdir -p ci-results
+          ghc --version > ci-results/toolchain.txt
+          cabal --version >> ci-results/toolchain.txt
+          cd package-check/babynf-*
+          cabal bench babynf-bench --benchmark-options='--timeout 0.1 --csv baseline.csv +RTS -T -RTS'
+          cp baseline.csv ../../ci-results/baseline.csv
+          cp dist-newstyle/cache/plan.json ../../ci-results/plan.json
+      - name: Save source archive and benchmark baseline
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package-and-baseline
+          path: |
+            sdist/
+            ci-results/
+          retention-days: 14
