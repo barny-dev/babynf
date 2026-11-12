@@ -51,10 +51,16 @@ grammar refers to names such as `ALPHA` or `DIGIT`.
   Pretty printing does not preserve comments or original formatting.
 - Prose values (`<...>`) can be read into the grammar model. An executable prose
   element fails when reached; no custom prose resolver is provided yet.
-- Errors are strings without source positions. Invalid grammars can also cause
+- Errors are strings without source positions. Some grammars can also cause
   exceptions or nontermination, and numeric values above 255 can wrap to bytes.
   Read the [parser behavior and known limitations](docs/parser-contract.md)
   before executing untrusted grammars.
+
+The compatibility goal is to align grammar validation and execution with
+established ABNF libraries. The [compatibility goals](docs/parser-contract.md#compatibility-goals)
+compare APG and Python `abnf`, distinguish their policies from RFC requirements,
+and identify changes needed in the expected-failure tests. These goals are not
+implemented guarantees.
 
 ## Modules
 

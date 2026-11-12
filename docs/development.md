@@ -17,16 +17,20 @@ Tests cover the core interpreter and ABNF integration, alongside the existing
 rule/model/utility tests. HTTP and SMTP fixtures are protocol subsets, not full
 conformance suites.
 
-The `known issues (expected failures)` group contains ten desired-behavior tests
+The `known issues (expected failures)` group contains ten provisional probes
 that currently fail. Tasty reports each as an expected failure and keeps the
-overall suite green. An unexpected pass fails the suite: when fixing a defect,
-remove its marker so the case becomes a normal regression test. The markers do
-not mean invalid-grammar handling is implemented.
+overall suite green. An unexpected pass fails the suite. Their current assertions
+all require rejection; this is not the target for every case. Before promoting
+a probe, align its assertion with the
+[compatibility goals](parser-contract.md#compatibility-goals), then remove the
+marker when the implementation satisfies it. The markers do not establish
+grammar validation or compatibility with other ABNF libraries.
 
 Probes run in child processes with a 64 MiB heap limit, an 8 MiB stack limit, and
 a five-second parent timeout. Ordinary harness controls check that a child can
 accept valid input and reject invalid input. See
-[parser-contract.md](parser-contract.md) for the defects and intended outcomes.
+[parser-contract.md](parser-contract.md) for current limitations, reference-library
+behavior, and planned outcomes.
 
 ## Compiler compatibility
 
