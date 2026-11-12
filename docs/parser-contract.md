@@ -1,7 +1,8 @@
-# Parser behavior and regression baseline
+# Parser behavior and compatibility goals
 
 This document describes the current parser behavior and known limitations.
-The regression suite uses these behaviors as a baseline for backend changes.
+The compatibility goals describe intended changes, not additional guarantees
+of the current implementation.
 
 ## Supported execution behavior
 
@@ -30,38 +31,22 @@ but discarded, and no source positions are retained. The reader does not perform
 complete grammar validation. `ABNF.parse` does not implicitly add core-rule
 definitions; applications must include them when required.
 
-The core tests construct `Parseable` expressions directly, independently of the
-ABNF syntax reader. Integration tests exercise grammar reading and protocol
-fixtures. The HTTP request and SMTP EHLO fixtures are representative subsets,
-not claims of full protocol conformance.
+## Known limitations
 
-## Known issues and current probes
-
-The `known issues (expected failures)` group contains ten isolated probes marked
-with `tasty-expected-failure`. Every probe currently requires a normal `Left`
-rejection, and each currently fails that assertion. An unexpected pass fails CI
-too. This is a provisional baseline: rejection is not the compatibility goal for
-every case, particularly nullable repetition. Update each assertion to its agreed
-behavior before promoting it to a normal regression test.
-
-| Probe | Current behavior |
+| Topic | Current behavior |
 | --- | --- |
-| `duplicate-basic` | Two `=` definitions are combined as alternatives; `DefinedAs` is ignored during dictionary construction. |
-| `orphan-incremental` | A standalone `=/` definition is accepted. |
-| `undefined-alternative` | An undefined reference can be hidden by a successful alternative. |
-| `decimal-overflow`, `hex-overflow`, `binary-overflow` | Numeric value 256 wraps to byte zero and matches NUL. |
-| `reversed-repeat` | Reversed bounds can throw an exception. |
-| `nullable-repeat` | Unbounded repetition of an optional expression can diverge. |
-| `direct-left-recursion`, `indirect-left-recursion` | Left recursion can diverge. |
+| Duplicate basic definitions | Two `=` definitions are combined as alternatives; `DefinedAs` is ignored during dictionary construction. |
+| Incremental definitions | A standalone `=/` definition is accepted without a base. |
+| Undefined references | An undefined reference can be hidden by a successful alternative. |
+| Numeric terminals | Numeric value 256 wraps to byte zero and matches NUL, in decimal, hexadecimal, and binary notation. |
+| Repetition bounds | Reversed bounds can throw an exception. |
+| Nullable repetition | Unbounded repetition of an optional expression can diverge. |
+| Left recursion | Direct and indirect left recursion can diverge. |
 
 This list mixes implementation defects, unsupported execution features, and
 definition policies. It is not a list of syntax errors in ABNF. Errors returned
 through the public API are unstructured strings. A successful grammar read is
 insufficient to establish that executing it is safe.
-Each probe runs in a child test process with a 64 MiB heap limit, an 8 MiB stack
-limit, and a five-second parent timeout. A crash, resource exhaustion, timeout,
-or acceptance is not a successful rejection. The normal regression suite is not
-marked as expected failure.
 
 ## Compatibility goals
 
@@ -82,12 +67,12 @@ supported.
 
 ### Reference behavior
 
-The following results were observed with APG JavaScript 4.4.0 at revision
+The comparison uses APG JavaScript 4.4.0 at revision
 [`89b2173`](https://github.com/ldthomas/apg-js/tree/89b217377c10dfa73838387ebd11d69d347a8961)
 (strict ABNF mode, full generation and attribute analysis) and Python `abnf` at
 revision
 [`abbc0e0`](https://github.com/declaresub/abnf/tree/abbc0e0afc87f67d69c167c3228de99a850397b7)
-(2.9.1 changelog, pure Python backend, default alternation). They are versioned
+(pure Python backend, default alternation). These are versioned
 comparisons, not a claim that all ABNF libraries agree.
 
 | Case | APG | Python `abnf` |
@@ -108,10 +93,11 @@ matching U+0100 does not imply that our byte backend should encode it as UTF-8.
 Neither implementation wraps 256 to zero. Left recursion is likewise a parser
 capability, not inherently invalid ABNF: the GLL engine in
 [`go-abnf`](https://github.com/pandatix/go-abnf/tree/f3977cbbbd8078c29d7d013c9db1fb5764714dfd)
-supports it. That implementation's source and tests were inspected, not executed
-for this comparison.
+supports it, including a
+[test for cyclic derivations](https://github.com/pandatix/go-abnf/blob/f3977cbbbd8078c29d7d013c9db1fb5764714dfd/sppf_test.go#L86)
+from a rule of the form `a = a / "x"`.
 
-### Planned outcomes
+### Goals and policy decisions
 
 - Preserve numeric values until backend range validation. The byte backend
   must report terminals outside 0..255 without modular wrapping. Cover decimal,
@@ -124,16 +110,15 @@ for this comparison.
   the returned tree. Rejecting every nullable repetition is not the target.
 - Handle direct and indirect left recursion without divergence. Either support
   matching with an appropriate algorithm or diagnose it explicitly as an
-  unsupported grammar feature. Choose and document the capability before
-  finalizing those regression assertions; an ordinary input mismatch is not an
-  adequate unsupported-feature diagnostic.
+  unsupported grammar feature. An ordinary input mismatch is not an adequate
+  unsupported-feature diagnostic.
 - Specify definition assembly explicitly: retain valid `=` plus `=/` extension,
   and stop silently treating every definition as an incremental addition. APG's
   duplicate rejection and Python's warned replacement are different precedents;
   the duplicate policy remains to be selected. Both require a previous base for
   `=/`, making that a compatibility reference rather than an RFC ordering rule.
-  Document the chosen ordering and completeness policy, including how separately
-  supplied grammar fragments are assembled, before enforcing it.
+  The definition assembly policy must specify ordering, completeness, and how
+  separately supplied grammar fragments are assembled.
 - Add differential regression cases against pinned reference versions. Record
   grammar-loading errors separately from input mismatch and unsupported features.
   Include both orders of basic/incremental definitions, valid extensions, all
@@ -141,11 +126,5 @@ for this comparison.
   indirect recursion. Document intentional differences arising from byte input,
   tree output, or chosen library policies rather than claiming universal parity.
 
-These goals remain open. The ten expected-failure probes do not establish this
-compatibility: in particular, a correctly accepted nullable repetition would
-still fail their current rejection-only assertion. Adjust assertions as behavior
-is specified, then remove each expected-failure marker when the corresponding
-implementation and regression coverage are complete.
-
-Benchmark scenarios and measurement instructions are described in
-[development.md](development.md#benchmarks).
+Test maintenance, benchmark scenarios, and measurement instructions are described
+in [development.md](development.md).

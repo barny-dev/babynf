@@ -59,8 +59,8 @@ grammar refers to names such as `ALPHA` or `DIGIT`.
 The compatibility goal is to align grammar validation and execution with
 established ABNF libraries. The [compatibility goals](docs/parser-contract.md#compatibility-goals)
 compare APG and Python `abnf`, distinguish their policies from RFC requirements,
-and identify changes needed in the expected-failure tests. These goals are not
-implemented guarantees.
+and define validation and execution targets. These goals are not implemented
+guarantees.
 
 ## Modules
 
