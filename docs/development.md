@@ -22,14 +22,12 @@ reader. HTTP and SMTP fixtures are protocol subsets, not full conformance suites
 The `known issues (expected failures)` group uses `tasty-expected-failure` to
 isolate known limitations. A failing assertion is reported as an expected
 failure; an unexpected pass fails the suite so that obsolete markers are removed.
-Ordinary regressions are not marked as expected failures.
 
-The probes assert normal `Left` rejection. That assertion is narrower than the
-[compatibility goals](parser-contract.md#compatibility-goals): nullable repetition,
-for example, should accept matching input and terminate. When changing behavior,
-update the affected assertion to the specified result and remove its marker when
-the implementation satisfies it. A rejection-only probe is not a conformance
-test for a feature that should accept input.
+The probes assert normal `Left` rejection, including for nullable repetition,
+whose [compatibility goal](parser-contract.md#compatibility-goals) is successful
+matching with termination. When implementing a compatibility goal, update the
+affected assertion to the specified result and remove its marker when the
+implementation satisfies it.
 
 Probes run in child processes with a 64 MiB heap limit, an 8 MiB stack limit, and
 a five-second parent timeout. A crash, resource exhaustion, or timeout is not a
@@ -71,7 +69,7 @@ including forks with identical branch names.
 
 Artifacts are retained for fourteen days; save any baseline needed longer.
 Dependency caches are separated by OS, architecture, compiler, Cabal, and solver
-plan. Cache restores do not replace builds or tests.
+plan.
 
 To run the library lower-bound check locally, select GHC 9.0.2 and run:
 

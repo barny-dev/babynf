@@ -1,9 +1,5 @@
 # Parser behavior and compatibility goals
 
-This document describes the current parser behavior and known limitations.
-The compatibility goals describe intended changes, not additional guarantees
-of the current implementation.
-
 ## Supported execution behavior
 
 - Inputs are bytes. Literal matching returns the original matched bytes.
@@ -12,7 +8,7 @@ of the current implementation.
 - Sequence preserves fragment order. Rule references wrap their result in a
   named node; failed branches must not leave nodes in the successful tree.
 - Alternatives are searched in declaration order, and the first **complete**
-  successful derivation is returned. This is not a parse-forest API.
+  successful derivation is returned as a single tree.
 - An earlier alternative can be reconsidered when its continuation fails:
   `start = ("a" / "ab") "c"` accepts `abc`.
 - Repetition is greedy but can give matches back to a suffix:
@@ -20,8 +16,7 @@ of the current implementation.
 - Finite repetition of an empty match terminates; unbounded empty matches are a
   known defect below. Consuming right recursion is supported.
 - `Core.Parseable.toParser` and the public `ABNF.parse` require EOF. The exposed
-  attoparsec parser accepts incremental chunks; tests compare every split of an
-  overlapping-alternative example with complete-buffer parsing.
+  attoparsec parser accepts incremental chunks.
 - Custom `Unit` actions can consume input and return named subtrees. Prose
   elements currently fail if reached; there is no prose resolver yet.
 
@@ -43,27 +38,20 @@ definitions; applications must include them when required.
 | Nullable repetition | Unbounded repetition of an optional expression can diverge. |
 | Left recursion | Direct and indirect left recursion can diverge. |
 
-This list mixes implementation defects, unsupported execution features, and
-definition policies. It is not a list of syntax errors in ABNF. Errors returned
-through the public API are unstructured strings. A successful grammar read is
-insufficient to establish that executing it is safe.
+Errors returned through the public API are unstructured strings.
 
 ## Compatibility goals
 
-Align handling of these cases with established ABNF libraries, using the RFCs
-for language semantics and concrete implementations for operational behavior.
-Grammar reading, semantic validation, and input matching are separate concerns:
-accepting syntax does not imply that references resolve or that the execution
-backend supports every construct.
+Align grammar validation and execution with established ABNF libraries, using
+the RFCs for language semantics and concrete implementations for operational
+behavior.
 
 RFC 5234 [section 3.3](https://www.rfc-editor.org/rfc/rfc5234.html#section-3.3)
 describes a basic definition followed by incremental additions. Its
 [metagrammar](https://www.rfc-editor.org/rfc/rfc5234.html#section-4) accepts both
-`=` and `=/` without enforcing relationships between definitions. The prose
-does not explicitly require a parser to validate their textual order. Treat
-ordering checks as an implementation policy, not an explicit RFC mandate.
-Mixing a basic definition with incremental additions is valid and must remain
-supported.
+`=` and `=/` without enforcing relationships between definitions. The RFC does
+not explicitly require textual-order validation; ordering checks are a library
+policy. A basic definition with incremental additions is valid ABNF.
 
 ### Reference behavior
 
@@ -72,8 +60,7 @@ The comparison uses APG JavaScript 4.4.0 at revision
 (strict ABNF mode, full generation and attribute analysis) and Python `abnf` at
 revision
 [`abbc0e0`](https://github.com/declaresub/abnf/tree/abbc0e0afc87f67d69c167c3228de99a850397b7)
-(pure Python backend, default alternation). These are versioned
-comparisons, not a claim that all ABNF libraries agree.
+(pure Python backend, default alternation).
 
 | Case | APG | Python `abnf` |
 | --- | --- | --- |
@@ -88,12 +75,11 @@ comparisons, not a claim that all ABNF libraries agree.
 | `start =/ "b"` before `start = "a"` | Rejects because the base is not previously defined. | Rejects for the same reason. |
 | `start = "a"` then `start =/ "b"` | Accepts `a` and `b`. | Accepts `a` and `b`. |
 
-Numeric terminals in those APIs are not restricted to BAByNF's byte domain;
-matching U+0100 does not imply that our byte backend should encode it as UTF-8.
-Neither implementation wraps 256 to zero. Left recursion is likewise a parser
-capability, not inherently invalid ABNF: the GLL engine in
-[`go-abnf`](https://github.com/pandatix/go-abnf/tree/f3977cbbbd8078c29d7d013c9db1fb5764714dfd)
-supports it, including a
+These reference APIs support character value 256; BAByNF's byte backend has a
+terminal domain of 0..255. Left recursion is a valid ABNF construct supported by
+the GLL engine in
+[`go-abnf`](https://github.com/pandatix/go-abnf/tree/f3977cbbbd8078c29d7d013c9db1fb5764714dfd),
+which includes a
 [test for cyclic derivations](https://github.com/pandatix/go-abnf/blob/f3977cbbbd8078c29d7d013c9db1fb5764714dfd/sppf_test.go#L86)
 from a rule of the form `a = a / "x"`.
 
@@ -107,13 +93,11 @@ from a rule of the form `a = a / "x"`.
   conceal an unresolved reference in the assembled executable grammar.
 - Support unbounded nullable repetition without divergence. `*["a"]` should
   accept empty input and strings of `a`; specify how empty iterations appear in
-  the returned tree. Rejecting every nullable repetition is not the target.
+  the returned tree.
 - Handle direct and indirect left recursion without divergence. Either support
   matching with an appropriate algorithm or diagnose it explicitly as an
-  unsupported grammar feature. An ordinary input mismatch is not an adequate
-  unsupported-feature diagnostic.
-- Specify definition assembly explicitly: retain valid `=` plus `=/` extension,
-  and stop silently treating every definition as an incremental addition. APG's
+  unsupported grammar feature, distinct from input mismatch.
+- Distinguish basic definitions (`=`) from incremental additions (`=/`). APG's
   duplicate rejection and Python's warned replacement are different precedents;
   the duplicate policy remains to be selected. Both require a previous base for
   `=/`, making that a compatibility reference rather than an RFC ordering rule.
@@ -123,8 +107,8 @@ from a rule of the form `a = a / "x"`.
   grammar-loading errors separately from input mismatch and unsupported features.
   Include both orders of basic/incremental definitions, valid extensions, all
   three numeric forms, empty and consuming nullable repetitions, and direct and
-  indirect recursion. Document intentional differences arising from byte input,
-  tree output, or chosen library policies rather than claiming universal parity.
+  indirect recursion. Document differences arising from byte input, tree output,
+  or chosen library policies.
 
 Test maintenance, benchmark scenarios, and measurement instructions are described
 in [development.md](development.md).
