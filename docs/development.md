@@ -13,24 +13,28 @@ cabal check
 cabal haddock lib:babynf
 ```
 
-Tests cover the core interpreter and ABNF integration, alongside the existing
-rule/model/utility tests. HTTP and SMTP fixtures are protocol subsets, not full
-conformance suites.
+Tests cover the core interpreter and ABNF integration, alongside rule/model/utility
+tests. Core tests construct `Parseable` expressions independently of the grammar
+reader. HTTP and SMTP fixtures are protocol subsets, not full conformance suites.
 
-The `known issues (expected failures)` group contains ten provisional probes
-that currently fail. Tasty reports each as an expected failure and keeps the
-overall suite green. An unexpected pass fails the suite. Their current assertions
-all require rejection; this is not the target for every case. Before promoting
-a probe, align its assertion with the
-[compatibility goals](parser-contract.md#compatibility-goals), then remove the
-marker when the implementation satisfies it. The markers do not establish
-grammar validation or compatibility with other ABNF libraries.
+## Expected-failure tests
+
+The `known issues (expected failures)` group uses `tasty-expected-failure` to
+isolate known limitations. A failing assertion is reported as an expected
+failure; an unexpected pass fails the suite so that obsolete markers are removed.
+Ordinary regressions are not marked as expected failures.
+
+The probes assert normal `Left` rejection. That assertion is narrower than the
+[compatibility goals](parser-contract.md#compatibility-goals): nullable repetition,
+for example, should accept matching input and terminate. When changing behavior,
+update the affected assertion to the specified result and remove its marker when
+the implementation satisfies it. A rejection-only probe is not a conformance
+test for a feature that should accept input.
 
 Probes run in child processes with a 64 MiB heap limit, an 8 MiB stack limit, and
-a five-second parent timeout. Ordinary harness controls check that a child can
-accept valid input and reject invalid input. See
-[parser-contract.md](parser-contract.md) for current limitations, reference-library
-behavior, and planned outcomes.
+a five-second parent timeout. A crash, resource exhaustion, or timeout is not a
+normal parser rejection. Harness controls check that a child can accept valid
+input and reject invalid input.
 
 ## Compiler compatibility
 
