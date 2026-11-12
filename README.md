@@ -6,7 +6,7 @@ pretty printer. The current execution backend is attoparsec.
 
 ## Parse a word
 
-Add `babynf` and `bytestring` to your component's `build-depends`. This complete
+Add `babynf` and `bytestring` to your component's `build-depends`. The following
 program reads a grammar, adds the core rules needed by `ALPHA`, and parses input
 using the `word` rule:
 
@@ -56,11 +56,9 @@ grammar refers to names such as `ALPHA` or `DIGIT`.
   Read the [parser behavior and known limitations](docs/parser-contract.md)
   before executing untrusted grammars.
 
-The compatibility goal is to align grammar validation and execution with
-established ABNF libraries. The [compatibility goals](docs/parser-contract.md#compatibility-goals)
-compare APG and Python `abnf`, distinguish their policies from RFC requirements,
-and define validation and execution targets. These goals are not implemented
-guarantees.
+Planned improvements to grammar validation and execution are defined in the
+[compatibility goals](docs/parser-contract.md#compatibility-goals), with APG and
+Python `abnf` as references.
 
 ## Modules
 
